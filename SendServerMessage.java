@@ -13,10 +13,11 @@ public class SendServerMessage implements Runnable {
         this.serverRefreshRate = serverRefreshRate;
     }
 
-    public void sendMessage(int messageCode) {
+    public DatagramPacket sendMessage(int messageCode, int playerID) {
         FlatBufferBuilder fbb = new FlatBufferBuilder(0);
         List<Player> playerList = Server.getPlayerList();
         byte[] data;
+        DatagramPacket message = null;
         if(messageCode == 2){
             int playerDataList[] = new int[playerList.size()];
             for(int i = 0; i < playerList.size(); i++) {
@@ -35,35 +36,30 @@ public class SendServerMessage implements Runnable {
             ServerMessage.addPlayerData(fbb, playerDataVector);
             ServerMessage.addPlayerId(fbb, 0);
             int serverMessage = ServerMessage.endServerMessage(fbb);
-            GameMessage.startGameMessage(fbb);
-            GameMessage.addDataTypeType(fbb, GameData.ServerMessage);
-            GameMessage.addDataType(fbb, serverMessage);
-            int gameMessage = GameMessage.endGameMessage(fbb);
-            fbb.finish(gameMessage);
-            data = fbb.sizedByteArray();
+            data = makeGameMessage(fbb, serverMessage);
             // broadcast to all clients
-            DatagramPacket message = new DatagramPacket(data, data.length);
-            for(Player player : playerList) {
-                //send to each player
-            }
+            message = new DatagramPacket(data, data.length);
         }
-        else if(messageCode == 1){
+        else if(messageCode == 0 || messageCode == 1){
             ServerMessage.startServerMessage(fbb);
             ServerMessage.addMessageCode(fbb, messageCode);
-            ServerMessage.addPlayerId(fbb, Server.assignPlayerId());
+            ServerMessage.addPlayerId(fbb, playerID+1);
             int serverMessage = ServerMessage.endServerMessage(fbb);
-            GameMessage.startGameMessage(fbb);
-            GameMessage.addDataTypeType(fbb, GameData.ServerMessage);
-            GameMessage.addDataType(fbb, serverMessage);
-            int gameMessage = GameMessage.endGameMessage(fbb);
-            fbb.finish(gameMessage);
-            data = fbb.sizedByteArray();
-            DatagramPacket message = new DatagramPacket(data, data.length);
+            data = makeGameMessage(fbb, serverMessage);
+            message = new DatagramPacket(data, data.length, playerList.get(playerID).getAddress());
         }
+        return message;
     }
 
-    public void sendMessage(int messageCode, int playerID){
-
+    private byte[] makeGameMessage(FlatBufferBuilder fbb, int serverMessage) {
+        byte[] data;
+        GameMessage.startGameMessage(fbb);
+        GameMessage.addDataTypeType(fbb, GameData.ServerMessage);
+        GameMessage.addDataType(fbb, serverMessage);
+        int gameMessage = GameMessage.endGameMessage(fbb);
+        fbb.finish(gameMessage);
+        data = fbb.sizedByteArray();
+        return data;
     }
 
     public void run() {
