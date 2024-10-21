@@ -2,16 +2,13 @@ import Game.*;
 import Game.GameData;
 import Game.Vec2;
 import com.google.flatbuffers.*;
-
 import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.List;
 
 public class SendServerMessage implements Runnable {
-    private int serverRefreshRate;
-
-    public void setServerRefreshRate(int serverRefreshRate) {
-        this.serverRefreshRate = serverRefreshRate;
-    }
+    private final int serverRefreshRate;
 
     public DatagramPacket sendMessage(int messageCode, int playerID) {
         FlatBufferBuilder fbb = new FlatBufferBuilder(0);
@@ -62,16 +59,27 @@ public class SendServerMessage implements Runnable {
         return data;
     }
 
+    public SendServerMessage(int serverRefreshRate) {
+        this.serverRefreshRate = serverRefreshRate;
+
+    }
+
     public void run() {
-        while (true) {
-            //to add things
-            try {
+        try {
+            Server.udpSocket.setBroadcast(true);
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+        while(true){
+            try{
+                DatagramPacket packet = sendMessage(2, -1);
+                packet.setPort(Server.serverPort);
+                packet.setAddress(InetAddress.getByName("255.255.255.255"));
+                Server.udpSocket.send(packet);
                 Thread.sleep(serverRefreshRate);
-                // Add your server message sending logic here
-            } catch (InterruptedException e) {
-                // Handle exception, for example, break the loop to stop the thread
-                Thread.currentThread().interrupt(); // Retain the interrupt status
-                break;
+            }
+            catch(Exception e){
+                e.printStackTrace();
             }
         }
     }
