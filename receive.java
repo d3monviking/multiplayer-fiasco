@@ -13,8 +13,9 @@ public class receive implements Runnable {
     public BlockingQueue<ClientMessage> messageQueue;
 
 
-    public receive(DatagramPacket packet) {
+    public receive(DatagramPacket packet, BlockingQueue<ClientMessage> messageQueue) {
         this.packet = packet;
+        this.messageQueue = messageQueue;
     }
 
     public ClientMessage receiveMessage() {
