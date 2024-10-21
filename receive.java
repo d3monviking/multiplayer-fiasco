@@ -33,7 +33,7 @@ public class receive implements Runnable {
                     Server.udpSocket.receive(packet);
                     this.packet = packet;
                     ClientMessage receivedMessage = receiveMessage();
-                    messageQueue.add(receivedMessage);
+                    messageQueue.put(receivedMessage);
                 }
 
             } catch (Exception e) {
