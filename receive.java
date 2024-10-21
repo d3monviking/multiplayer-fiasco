@@ -9,15 +9,17 @@ import Game.ClientMessage;
 
 public class receive implements Runnable {
     private DatagramPacket packet;
+    
 
     public receive(DatagramPacket packet) {
         this.packet = packet;
     }
 
-    public void receiveMessage() {
+    public ClientMessage receiveMessage() {
         byte[] buffer = packet.getData();
         ByteBuffer buff = ByteBuffer.wrap(buffer);
         ClientMessage message = ClientMessage.getRootAsClientMessage(buff);
+        return message;
     }
 
     @Override
