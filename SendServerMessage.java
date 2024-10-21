@@ -9,14 +9,15 @@ import java.util.List;
 public class SendServerMessage implements Runnable {
     private int serverRefreshRate;
 
-    public SendServerMessage(int serverRefreshRate) {
+    public void setServerRefreshRate(int serverRefreshRate) {
         this.serverRefreshRate = serverRefreshRate;
     }
 
-    public void run() {
-        while (true) {
-            FlatBufferBuilder fbb = new FlatBufferBuilder(0);
-            List<Player> playerList = Server.getPlayerList();
+    public void sendMessage(int messageCode) {
+        FlatBufferBuilder fbb = new FlatBufferBuilder(0);
+        List<Player> playerList = Server.getPlayerList();
+        byte[] data;
+        if(messageCode == 2){
             int playerDataList[] = new int[playerList.size()];
             for(int i = 0; i < playerList.size(); i++) {
                 Player player = playerList.get(i);
@@ -30,7 +31,7 @@ public class SendServerMessage implements Runnable {
             }
             int playerDataVector = ServerMessage.createPlayerDataVector(fbb, playerDataList);
             ServerMessage.startServerMessage(fbb);
-            ServerMessage.addMessageCode(fbb, 1);
+            ServerMessage.addMessageCode(fbb, messageCode);
             ServerMessage.addPlayerData(fbb, playerDataVector);
             ServerMessage.addPlayerId(fbb, 0);
             int serverMessage = ServerMessage.endServerMessage(fbb);
@@ -39,9 +40,35 @@ public class SendServerMessage implements Runnable {
             GameMessage.addDataType(fbb, serverMessage);
             int gameMessage = GameMessage.endGameMessage(fbb);
             fbb.finish(gameMessage);
-            byte[] data = fbb.sizedByteArray();
+            data = fbb.sizedByteArray();
             // broadcast to all clients
-            DatagramPacket message = new DatagramPacket(data, data.length, playerList.get(0).getAddress());
+            DatagramPacket message = new DatagramPacket(data, data.length);
+            for(Player player : playerList) {
+                //send to each player
+            }
+        }
+        else if(messageCode == 1){
+            ServerMessage.startServerMessage(fbb);
+            ServerMessage.addMessageCode(fbb, messageCode);
+            ServerMessage.addPlayerId(fbb, Server.assignPlayerId());
+            int serverMessage = ServerMessage.endServerMessage(fbb);
+            GameMessage.startGameMessage(fbb);
+            GameMessage.addDataTypeType(fbb, GameData.ServerMessage);
+            GameMessage.addDataType(fbb, serverMessage);
+            int gameMessage = GameMessage.endGameMessage(fbb);
+            fbb.finish(gameMessage);
+            data = fbb.sizedByteArray();
+            DatagramPacket message = new DatagramPacket(data, data.length);
+        }
+    }
+
+    public void sendMessage(int messageCode, int playerID){
+
+    }
+
+    public void run() {
+        while (true) {
+            //to add things
             try {
                 Thread.sleep(serverRefreshRate);
                 // Add your server message sending logic here
