@@ -9,7 +9,6 @@ public class receive implements Runnable {
 
 
     public receive(BlockingQueue<ClientMessage> messageQueue) {
-        
         this.messageQueue = messageQueue;
     }
 
@@ -33,7 +32,7 @@ public class receive implements Runnable {
                     // Hand IP and port to server for player creation if needed
                     InetAddress clientAddress = packet.getAddress();
                     int clientPort = packet.getPort();
-                    Server.addPlayerIfNotExists(clientAddress, clientPort);  // Check and add player if needed
+                    Server.addNewPlayer(clientAddress, clientPort);  // Check and add player if needed
                 }
 
             } catch (Exception e) {

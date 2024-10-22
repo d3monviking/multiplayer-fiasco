@@ -10,7 +10,7 @@ import java.util.List;
 public class SendServerMessage implements Runnable {
     private final int serverRefreshRate;
 
-    public DatagramPacket sendMessage(int messageCode, int playerID) {
+    public static DatagramPacket makeServerMessage(int messageCode, int playerID) {
         FlatBufferBuilder fbb = new FlatBufferBuilder(0);
         List<Player> playerList = Server.getPlayerList();
         byte[] data;
@@ -48,7 +48,7 @@ public class SendServerMessage implements Runnable {
         return message;
     }
 
-    private byte[] makeGameMessage(FlatBufferBuilder fbb, int serverMessage) {
+    private static byte[] makeGameMessage(FlatBufferBuilder fbb, int serverMessage) {
         byte[] data;
         GameMessage.startGameMessage(fbb);
         GameMessage.addDataTypeType(fbb, GameData.ServerMessage);
@@ -72,7 +72,7 @@ public class SendServerMessage implements Runnable {
         }
         while(true){
             try{
-                DatagramPacket packet = sendMessage(2, -1);
+                DatagramPacket packet = makeServerMessage(2, -1);
                 packet.setPort(Server.serverPort);
                 packet.setAddress(InetAddress.getByName("255.255.255.255"));
                 Server.udpSocket.send(packet);
