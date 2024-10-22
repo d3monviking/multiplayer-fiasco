@@ -1,6 +1,6 @@
 import Game.*;
-import Game.GameData;
 import Game.Vec2;
+import Game.ServerMessage;
 import com.google.flatbuffers.*;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -40,10 +40,12 @@ public class SendServerMessage implements Runnable {
             ServerMessage.startServerMessage(fbb);
             ServerMessage.addMessageCode(fbb, messageCode);
             ServerMessage.addPlayerId(fbb, playerID+1);
+            ServerMessage.addPlayerData(fbb, playerDataVector);
             int serverMessage = ServerMessage.endServerMessage(fbb);
             data = makeGameMessage(fbb, serverMessage);
             message = new DatagramPacket(data, data.length, playerList.get(playerID).getAddress());
         }
+        System.out.println(playerDataList.length);
         return message;
     }
 
