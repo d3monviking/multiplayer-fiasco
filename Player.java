@@ -120,18 +120,18 @@ public class Player {
     public synchronized String toString() {
         return "Player{" +
                 "address=" + address +
-                ", coordinates=" + coordinates +
+                ", coordinates=" + coordinates.getX() + ", " + coordinates.getY() +
                 ", playerId=" + playerId +
                 ", lastProcessedSeqNum=" + lastProcessedSeqNum +
                 ", timestamp=" + timestamp +
                 '}';
     }
 
-    public static void main(String[] args) {
-        // Example of how to create a Player
-        InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8080);
-        Vec2 coords = new Vec2(100.0f, 200.0f);
-        Player player = new Player(address, coords, 1, 42, System.currentTimeMillis());
-        System.out.println(player);
-    }
+    // public static void main(String[] args) {
+    //     // Example of how to create a Player
+    //     InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8080);
+    //     Vec2 coords = new Vec2(100.0f, 200.0f);
+    //     Player player = new Player(address, coords, 1, 42, System.currentTimeMillis());
+    //     System.out.println(player);
+    // }
 }
