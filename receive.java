@@ -1,4 +1,7 @@
 import Game.ClientMessage;
+import Game.GameMessage;
+import Game.GameData;
+
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.util.concurrent.BlockingQueue;
@@ -15,8 +18,15 @@ public class receive implements Runnable {
     public ClientMessage receiveMessage() {
         byte[] buffer = packet.getData();
         ByteBuffer buff = ByteBuffer.wrap(buffer);
-        ClientMessage message = ClientMessage.getRootAsClientMessage(buff);
-        return message;
+        //ClientMessage message = ClientMessage.getRootAsClientMessage(buff);
+        GameMessage gameMessage = GameMessage.getRootAsGameMessage(buff);
+        int dataType = gameMessage.dataTypeType();
+        if(dataType == GameData.ClientMessage){
+            ClientMessage message = (ClientMessage) gameMessage.dataType(new ClientMessage());
+            return message;
+        } else {
+            return null;
+        }
     }
 
     @Override
