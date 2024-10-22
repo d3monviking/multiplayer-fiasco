@@ -50,7 +50,7 @@ public class Server {
     }
 
     // Add player if not exists, based on their IP and port
-    public static synchronized void addNewPlayer(InetAddress clientAddress, int clientPort) {
+    public static synchronized void addNewPlayer(InetAddress clientAddress, int clientPort, int lastProcessedSeqNum) {
         if (gameState == 1) return;
         InetSocketAddress clientSocketAddress = new InetSocketAddress(clientAddress, clientPort);
         for (Player player : playerList) {
@@ -58,7 +58,7 @@ public class Server {
                 return;  // Player already exists
             }
         }
-        Player newPlayer = new Player(clientSocketAddress, new Vec2(0, playerList.size() + 2), playerList.size() + 1, 0, System.currentTimeMillis());
+        Player newPlayer = new Player(clientSocketAddress, new Vec2(0, playerList.size() + 2), playerList.size() + 1, lastProcessedSeqNum, System.currentTimeMillis());
         playerList.add(newPlayer);
         DatagramPacket playerIDPacket = SendServerMessage.makeServerMessage(0, playerCount);
         playerCount++;

@@ -15,26 +15,25 @@ public class SendServerMessage implements Runnable {
         List<Player> playerList = Server.getPlayerList();
         byte[] data;
         DatagramPacket message = null;
+        int playerDataList[] = new int[playerList.size()];
+        for(int i = 0; i < playerList.size(); i++) {
+            Player player = playerList.get(i);
+            PlayerData.startPlayerData(fbb);
+            PlayerData.addPlayerId(fbb, player.getPlayerId());
+            int pos = Vec2.createVec2(fbb, player.getCoordinates().getX(), player.getCoordinates().getY());
+            PlayerData.addPos(fbb, pos);
+            PlayerData.addTimestamp(fbb, player.getTimestampMilli());
+            PlayerData.addLastProcessedSeqNumber(fbb, player.getLastProcessedSeqNum());
+            playerDataList[i] = PlayerData.endPlayerData(fbb);
+        }
+        int playerDataVector = ServerMessage.createPlayerDataVector(fbb, playerDataList);
         if(messageCode == 2){
-            int playerDataList[] = new int[playerList.size()];
-            for(int i = 0; i < playerList.size(); i++) {
-                Player player = playerList.get(i);
-                PlayerData.startPlayerData(fbb);
-                PlayerData.addPlayerId(fbb, player.getPlayerId());
-                int pos = Vec2.createVec2(fbb, player.getCoordinates().getX(), player.getCoordinates().getY());
-                PlayerData.addPos(fbb, pos);
-                PlayerData.addTimestamp(fbb, player.getTimestampMilli());
-                PlayerData.addLastProcessedSeqNumber(fbb, player.getLastProcessedSeqNum());
-                playerDataList[i] = PlayerData.endPlayerData(fbb);
-            }
-            int playerDataVector = ServerMessage.createPlayerDataVector(fbb, playerDataList);
             ServerMessage.startServerMessage(fbb);
             ServerMessage.addMessageCode(fbb, messageCode);
             ServerMessage.addPlayerData(fbb, playerDataVector);
             ServerMessage.addPlayerId(fbb, 0);
             int serverMessage = ServerMessage.endServerMessage(fbb);
             data = makeGameMessage(fbb, serverMessage);
-            // broadcast to all clients
             message = new DatagramPacket(data, data.length);
         }
         else if(messageCode == 0 || messageCode == 1){
@@ -70,17 +69,26 @@ public class SendServerMessage implements Runnable {
         } catch (SocketException e) {
             throw new RuntimeException(e);
         }
-        while(true){
-            try{
-                DatagramPacket packet = makeServerMessage(2, -1);
-                packet.setPort(Server.serverPort);
-                packet.setAddress(InetAddress.getByName("255.255.255.255"));
-                Server.udpSocket.send(packet);
-                Thread.sleep(serverRefreshRate);
+        try {
+            while (true) {
+                try {
+                    DatagramPacket packet = makeServerMessage(2, -1);
+                    packet.setPort(Server.serverPort);
+                    packet.setAddress(InetAddress.getByName("255.255.255.255"));
+                    Server.udpSocket.send(packet);
+                    try {
+                        //noinspection BusyWait
+                        Thread.sleep(serverRefreshRate);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-            catch(Exception e){
-                e.printStackTrace();
-            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

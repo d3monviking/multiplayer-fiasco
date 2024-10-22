@@ -1,7 +1,4 @@
 import Game.ClientMessage;
-import Game.GameMessage;
-import Game.GameData;
-
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.util.concurrent.BlockingQueue;
@@ -18,15 +15,8 @@ public class receive implements Runnable {
     public ClientMessage receiveMessage() {
         byte[] buffer = packet.getData();
         ByteBuffer buff = ByteBuffer.wrap(buffer);
-        //ClientMessage message = ClientMessage.getRootAsClientMessage(buff);
-        GameMessage gameMessage = GameMessage.getRootAsGameMessage(buff);
-        int dataType = gameMessage.dataTypeType();
-        if(dataType == GameData.ClientMessage){
-            ClientMessage message = (ClientMessage) gameMessage.dataType(new ClientMessage());
-            return message;
-        } else {
-            return null;
-        }
+        ClientMessage message = ClientMessage.getRootAsClientMessage(buff);
+        return message;
     }
 
     @Override
@@ -42,7 +32,7 @@ public class receive implements Runnable {
                     // Hand IP and port to server for player creation if needed
                     InetAddress clientAddress = packet.getAddress();
                     int clientPort = packet.getPort();
-                    Server.addNewPlayer(clientAddress, clientPort);  // Check and add player if needed
+                    Server.addNewPlayer(clientAddress, clientPort, receivedMessage.sequenceNumber());  // Check and add player if needed
                 }
 
             } catch (Exception e) {
