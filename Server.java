@@ -32,6 +32,7 @@ public class Server {
 
     public static void main(String[] args) throws SocketException {
         udpSocket = new DatagramSocket(serverPort);
+        System.out.println("Server has started waiting for clients.....");
         // Start receive thread
         new Thread(new receive(messageQueue)).start();
 
@@ -58,7 +59,7 @@ public class Server {
                 return;  // Player already exists
             }
         }
-        Player newPlayer = new Player(clientSocketAddress, new Vec2(0, playerList.size() + 2), playerList.size() + 1, lastProcessedSeqNum, System.currentTimeMillis());
+        Player newPlayer = new Player(clientSocketAddress, new Vec2(0, playerList.size() + 200), playerList.size(), lastProcessedSeqNum, System.currentTimeMillis());
         playerList.add(newPlayer);
         DatagramPacket playerIDPacket = SendServerMessage.makeServerMessage(0, playerCount);
         playerCount++;
