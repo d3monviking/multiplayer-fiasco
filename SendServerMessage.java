@@ -2,15 +2,18 @@ import Game.*;
 import Game.Vec2;
 import Game.ServerMessage;
 import com.google.flatbuffers.*;
+
+import javax.xml.crypto.Data;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.List;
 
 public class SendServerMessage implements Runnable {
     private final int serverRefreshRate;
 
-    public static DatagramPacket makeServerMessage(int messageCode, int playerID) {
+    public static DatagramPacket makeServerMessage(int messageCode, int playerID) throws UnknownHostException {
         FlatBufferBuilder fbb = new FlatBufferBuilder(0);
         List<Player> playerList = Server.getPlayerList();
         byte[] data;
@@ -43,9 +46,10 @@ public class SendServerMessage implements Runnable {
             ServerMessage.addPlayerData(fbb, playerDataVector);
             int serverMessage = ServerMessage.endServerMessage(fbb);
             data = makeGameMessage(fbb, serverMessage);
-            message = new DatagramPacket(data, data.length, playerList.get(playerID).getAddress());
+            message = new DatagramPacket(data, data.length);
         }
-        System.out.println(playerDataList.length);
+        message.setPort(8887);
+        message.setAddress(InetAddress.getByName("255.255.255.255"));
         return message;
     }
 
@@ -67,16 +71,13 @@ public class SendServerMessage implements Runnable {
 
     public void run() {
         try {
-            Server.udpSocket.setBroadcast(true);
-        } catch (SocketException e) {
-            throw new RuntimeException(e);
-        }
-        try {
+            DatagramPacket gameStart = makeServerMessage(1, 0);
+            Server.udpSocket.send(gameStart);
+            System.out.println("Sent start Message!");
             while (true) {
                 try {
+//                    System.out.println("Sent new Message!");
                     DatagramPacket packet = makeServerMessage(2, -1);
-                    packet.setPort(Server.serverPort);
-                    packet.setAddress(InetAddress.getByName("255.255.255.255"));
                     Server.udpSocket.send(packet);
                     try {
                         //noinspection BusyWait
