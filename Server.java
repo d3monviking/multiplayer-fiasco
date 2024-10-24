@@ -55,7 +55,7 @@ public class Server {
     }
     // Add player if not exists, based on their IP and port
     public static synchronized void addNewPlayer(InetAddress clientAddress, int clientPort, int lastProcessedSeqNum) throws UnknownHostException {
-        if (gameState == 1) return;
+//        if (gameState == 1) return;
         InetSocketAddress clientSocketAddress = new InetSocketAddress(clientAddress, clientPort);
         for (Player player : playerList) {
             if (player.getAddress().equals(clientSocketAddress)) {

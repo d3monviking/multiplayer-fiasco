@@ -3,6 +3,7 @@ import Game.GameData;
 import Game.GameMessage;
 import Game.PlayerData;
 
+import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.util.concurrent.BlockingQueue;
@@ -18,7 +19,7 @@ public class receive implements Runnable {
         this.messageQueue = messageQueue;
     }
 
-    public static ClientMessage receiveMessage(DatagramPacket packet) { 
+    public static ClientMessage receiveMessage(DatagramPacket packet) {
         byte[] buffer = packet.getData();
         ByteBuffer buff = ByteBuffer.wrap(buffer);
         GameMessage gameMessage = GameMessage.getRootAsGameMessage(buff);
@@ -41,25 +42,25 @@ public class receive implements Runnable {
             System.out.println("ClientMessage is null");
             return;
         }
-    
+
         System.out.println("received message with sequence number: " + clientMessage.sequenceNumber());
-    
+
         PlayerData selfData = clientMessage.selfData();
         if (selfData == null) {
             System.out.println("PlayerData is null");
         }
-    
+
         // System.out.println("Player ID: " + selfData.playerId());
-    
+
         // Checking if playerInput exists
         if (clientMessage.playerInputLength() >= 4) {
-            System.out.println("Player inputs: " + clientMessage.playerInput(0) + ", " 
-                + clientMessage.playerInput(1) + ", " + clientMessage.playerInput(2) + ", " 
-                + clientMessage.playerInput(3));
+            System.out.println("Player inputs: " + clientMessage.playerInput(0) + ", "
+                    + clientMessage.playerInput(1) + ", " + clientMessage.playerInput(2) + ", "
+                    + clientMessage.playerInput(3));
         } else {
             System.out.println("Player inputs are missing or not enough inputs provided.");
         }
-    
+
         // Checking if position exists
         Game.Vec2 position = selfData.pos();
         if (position != null) {
@@ -67,44 +68,44 @@ public class receive implements Runnable {
         } else {
             System.out.println("Player position is null");
         }
-    
+
         // Uncomment if needed
         // System.out.println("Player timestamp: " + selfData.timestamp());
     }
 
     @Override
     public void run() {
-        
+        System.out.println("hello0");
+        while (true) {
+            System.out.println("hello11");
+            DatagramPacket packet = new DatagramPacket(new byte[104], 104);
             try {
-                while(true){
-                    DatagramPacket packet = new DatagramPacket(new byte[104], 104);
-                    try{
-                    Server.udpSocket.receive(packet);
-                }
-                catch(NullPointerException e){
-                    e.printStackTrace();
-//                    ClientMessage receivedMessage = receiveMessage(packet);
-                }
-                    ClientMessage receivedMessage = receiveMessage(packet);
-                    printMessage(receivedMessage);
-
-                    if (messageQueue != null && receivedMessage != null) {
-                        try {
-                            messageQueue.put(receivedMessage); // Safely put message into queue
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    // messageQueue.put(receivedMessage);
-                    // Hand IP and port to server for player creation if needed
-                    InetAddress clientAddress = packet.getAddress();
-                    int clientPort = packet.getPort();
-                    Server.addNewPlayer(clientAddress, clientPort, receivedMessage.sequenceNumber());  // Check and add player if needed
-                }
-
-            } catch (Exception e) {
+                Server.udpSocket.receive(packet);
+            } catch (NullPointerException | IOException e) {
                 e.printStackTrace();
+                System.out.println("hello1");
+//                    ClientMessage receivedMessage = receiveMessage(packet);
+            }
+            ClientMessage receivedMessage = receiveMessage(packet);
+            printMessage(receivedMessage);
+
+            if (messageQueue != null && receivedMessage != null) {
+                try {
+                    messageQueue.put(receivedMessage); // Safely put message into queue
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("hello2");
+            // messageQueue.put(receivedMessage);
+            // Hand IP and port to server for player creation if needed
+            InetAddress clientAddress = packet.getAddress();
+            int clientPort = packet.getPort();
+            try {
+                Server.addNewPlayer(clientAddress, clientPort, receivedMessage.sequenceNumber());  // Check and add player if needed
+            } catch (UnknownHostException e) {
+                throw new RuntimeException(e);
             }
         }
-    
+    }
 }
