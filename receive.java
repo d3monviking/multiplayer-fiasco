@@ -75,15 +75,17 @@ public class receive implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("hello0");
+        // System.out.println("hello0");
         while (true) {
-            System.out.println("hello11");
+            // System.out.println("hello11");
             DatagramPacket packet = new DatagramPacket(new byte[104], 104);
             try {
+                // System.out.println("hello12");
                 Server.udpSocket.receive(packet);
+                // System.out.println("hello13");
             } catch (NullPointerException | IOException e) {
                 e.printStackTrace();
-                System.out.println("hello1");
+                // System.out.println("hello1");
 //                    ClientMessage receivedMessage = receiveMessage(packet);
             }
             ClientMessage receivedMessage = receiveMessage(packet);
@@ -96,7 +98,7 @@ public class receive implements Runnable {
                     e.printStackTrace();
                 }
             }
-            System.out.println("hello2");
+            // System.out.println("hello2");
             // messageQueue.put(receivedMessage);
             // Hand IP and port to server for player creation if needed
             InetAddress clientAddress = packet.getAddress();

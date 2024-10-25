@@ -24,8 +24,12 @@ public class Calculate implements Runnable {
                     boolean[] inputs = getInputsFromClientMessage(clientMessage);
 
                     Vec2 currentCoords = player.getCoordinates();
-                    float newX = currentCoords.getX() + (inputs[0] ? 2 : 0);  // Example for input 0
-                    float newY = currentCoords.getY() + (inputs[1] ? 2 : 0);  // Example for input 1
+                    System.out.println("Current coordinates: " + currentCoords.getX() + ", " + currentCoords.getY());
+                    float newX, newY;
+                    newY = currentCoords.getY() - (inputs[0] ? 2 : 0);  // Example for input 0
+                    newX = currentCoords.getX() - (inputs[1] ? 2 : 0);  // Example for input 0
+                    newY = currentCoords.getY() + (inputs[2] ? 2 : 0);  // Example for input 1
+                    newX = currentCoords.getX() + (inputs[3] ? 2 : 0);  // Example for input 1
 
                     // Update player coordinates
                     player.setCoordinates(new Vec2(newX, newY));
