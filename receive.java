@@ -13,7 +13,7 @@ import com.google.flatbuffers.FlatBufferBuilder;
 public class receive implements Runnable {
     // private DatagramPacket packet;
     public BlockingQueue<ClientMessage> messageQueue;
-
+    // public static int mvnum = 0;
 
     public receive(BlockingQueue<ClientMessage> messageQueue) {
         this.messageQueue = messageQueue;
@@ -62,12 +62,13 @@ public class receive implements Runnable {
         }
 
         // Checking if position exists
-        Game.Vec2 position = selfData.pos();
-        if (position != null) {
-            System.out.println("Player position: " + position.x() + ", " + position.y());
-        } else {
-            System.out.println("Player position is null");
-        }
+        // Game.Vec2 position = selfData.pos();
+        // if (position != null) {
+        //     // System.out.println("Player position: " + position.x() + ", " + position.y());
+        //     System.out.println("Sequence number from receive: " + clientMessage.sequenceNumber());
+        // } else {
+        //     System.out.println("Player position is null");
+        // }
 
         // Uncomment if needed
         // System.out.println("Player timestamp: " + selfData.timestamp());
@@ -89,7 +90,8 @@ public class receive implements Runnable {
 //                    ClientMessage receivedMessage = receiveMessage(packet);
             }
             ClientMessage receivedMessage = receiveMessage(packet);
-            printMessage(receivedMessage);
+            // printMessage(receivedMessage);
+            // mvnum++;
 
             if (messageQueue != null && receivedMessage != null) {
                 try {

@@ -116,6 +116,10 @@ public class Player {
         this.timestamp = Instant.now(); // Update the timestamp to the current time
     }
 
+    public synchronized void setTimestamp(long timestamp) {
+        this.timestamp = Instant.ofEpochMilli(timestamp);
+    }
+
     @Override
     public synchronized String toString() {
         return "Player{" +

@@ -49,7 +49,7 @@ public class Server {
 
         // Start calculate thread
         new Thread(new Calculate(messageQueue)).start();
-        new Thread(new SendServerMessage(100)).start();
+        new Thread(new SendServerMessage(150)).start();
         // Placeholder for the Send thread (if you need it)
         // new Thread(new Send()).start();
     }
@@ -62,7 +62,7 @@ public class Server {
                 return;  // Player already exists
             }
         }
-        Player newPlayer = new Player(clientSocketAddress, new Vec2(300, playerList.size() + 300), playerList.size()+1, lastProcessedSeqNum, System.currentTimeMillis());
+        Player newPlayer = new Player(clientSocketAddress, new Vec2(300, playerList.size()*100 + 300), playerList.size()+1, lastProcessedSeqNum, System.currentTimeMillis());
         playerList.add(newPlayer);
         DatagramPacket playerIDPacket = SendServerMessage.makeServerMessage(0, playerCount);
         playerCount++;
