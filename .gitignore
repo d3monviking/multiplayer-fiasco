@@ -4,4 +4,5 @@
 
 #Ignore all executables
 
-game
+*
+!*/
