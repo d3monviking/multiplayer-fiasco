@@ -43,7 +43,7 @@ public class SendServerMessage implements Runnable {
         else if(messageCode == 0 || messageCode == 1){
             ServerMessage.startServerMessage(fbb);
             ServerMessage.addMessageCode(fbb, messageCode);
-            ServerMessage.addPlayerId(fbb, playerID+1);
+            ServerMessage.addPlayerId(fbb, playerID);
             ServerMessage.addPlayerData(fbb, playerDataVector);
             int serverMessage = ServerMessage.endServerMessage(fbb);
             data = makeGameMessage(fbb, serverMessage);
@@ -74,6 +74,11 @@ public class SendServerMessage implements Runnable {
         try {
             DatagramPacket gameStart = makeServerMessage(1, 0);
             Server.udpSocket.send(gameStart);
+            for(Player player : Server.getPlayerList()) {
+                gameStart.setAddress(player.getAddress().getAddress());
+                gameStart.setPort(player.getAddress().getPort());
+                Server.udpSocket.send(gameStart);
+            }
             System.out.println("Sent start Message!");
             while (true) {
                 try {

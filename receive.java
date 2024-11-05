@@ -90,8 +90,6 @@ public class receive implements Runnable {
 //                    ClientMessage receivedMessage = receiveMessage(packet);
             }
             ClientMessage receivedMessage = receiveMessage(packet);
-            // printMessage(receivedMessage);
-            // mvnum++;
 
             if (messageQueue != null && receivedMessage != null) {
                 try {
@@ -100,9 +98,6 @@ public class receive implements Runnable {
                     e.printStackTrace();
                 }
             }
-            // System.out.println("hello2");
-            // messageQueue.put(receivedMessage);
-            // Hand IP and port to server for player creation if needed
             InetAddress clientAddress = packet.getAddress();
             int clientPort = packet.getPort();
             try {
