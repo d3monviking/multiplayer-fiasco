@@ -68,6 +68,7 @@ public class Server {
         try {
 //            udpSocket.send(playerIDPacket);
             playerIDPacket.setAddress(newPlayer.getAddress().getAddress());
+            //dummy commment to test git
             playerIDPacket.setPort(newPlayer.getAddress().getPort());
             udpSocket.send(playerIDPacket);
         } catch (Exception e) {
@@ -76,3 +77,5 @@ public class Server {
         System.out.println("New player added: " + newPlayer);
     }
 }
+
+//dummy comment here
