@@ -63,10 +63,12 @@ public class Server {
         }
         Player newPlayer = new Player(clientSocketAddress, new Vec2(300, playerList.size()*100 + 300), ++playerCount, lastProcessedSeqNum, System.currentTimeMillis());
         playerList.add(newPlayer);
-        DatagramPacket playerIDPacket = SendServerMessage.makeServerMessage(0, playerCount);
+        DatagramPacket playerIDPacket = SendServerMessage.makeServerMessage(0, newPlayer.getPlayerId());
+        System.out.println(newPlayer.getPlayerId() + " " + newPlayer.getAddress().getAddress());
         try {
-            udpSocket.send(playerIDPacket);
+//            udpSocket.send(playerIDPacket);
             playerIDPacket.setAddress(newPlayer.getAddress().getAddress());
+            //dummy commment to test git
             playerIDPacket.setPort(newPlayer.getAddress().getPort());
             udpSocket.send(playerIDPacket);
         } catch (Exception e) {
@@ -75,3 +77,5 @@ public class Server {
         System.out.println("New player added: " + newPlayer);
     }
 }
+
+//dummy comment here
