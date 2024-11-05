@@ -53,9 +53,9 @@ void receiveFromSender(){
             if(self_id==-1){
                 self_id = servermessage->player_id();
                 self.set_id(servermessage->player_id());
-                cout<<"id set"<<endl;
+                // cout<<"id set"<<endl;
                 if(!servermessage->player_data()){cout<<"null"<<endl;}
-                cout<<servermessage->player_data()->size()<<endl;
+                cout<<"id:"<<self_id<<endl;
                 for(int i=0;i<servermessage->player_data()->size();i++){
                     if(servermessage->player_data()->Get(i)->player_id()==self_id){
                         self.setPos(servermessage->player_data()->Get(i)->pos()->x(), servermessage->player_data()->Get(i)->pos()->y());
