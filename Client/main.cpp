@@ -5,7 +5,7 @@ using namespace std;
 using boost::asio::ip::udp;
 boost::asio::io_context io_context;
 udp::socket clientSocket(io_context);
-udp::endpoint serverEndpoint(boost::asio::ip::make_address("10.42.0.193"), 8888);
+udp::endpoint serverEndpoint(boost::asio::ip::make_address("172.20.10.7"), 8888);
 
 
 sf::RenderWindow window(sf::VideoMode(600, 600), "SFML works!");
