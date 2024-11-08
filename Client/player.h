@@ -8,9 +8,13 @@ class Player{
         sf::Vector2f acc=sf::Vector2f(0,0);
         float speed = 2.0f;
         float runacc=2;
+        float maxspeed=8;
+        bool on_ground=true;
+        bool facing_right=true;
+        float prev_x_vel=0;
         
     public:
-        sf::RectangleShape shape;
+        sf::RectangleShape surface;
         long long count=0;
 
         Player(float x, float y, int id);

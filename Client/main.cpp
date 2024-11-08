@@ -5,14 +5,15 @@ using namespace std;
 using boost::asio::ip::udp;
 boost::asio::io_context io_context;
 udp::socket clientSocket(io_context);
-udp::endpoint serverEndpoint(boost::asio::ip::make_address("172.20.10.7"), 8888);
+udp::endpoint serverEndpoint(boost::asio::ip::make_address("192.168.215.245"), 8888);
 
-
-sf::RenderWindow window(sf::VideoMode(600, 600), "SFML works!");
+int screen_width=600;
+int screen_height=600;
+sf::RenderWindow window(sf::VideoMode(screen_width, screen_height), "SFML works!");
 
 auto window_ptr =  &window;
 
-Level level(window_ptr);
+Level level(window_ptr, screen_width);
 
 char recvBuf[1024];
 std::size_t received=sizeof(recvBuf);
@@ -59,27 +60,25 @@ void receiveFromSender(){
                 for(int i=0;i<servermessage->player_data()->size();i++){
                     if(servermessage->player_data()->Get(i)->player_id()==self_id){
                         self.setPos(servermessage->player_data()->Get(i)->pos()->x(), servermessage->player_data()->Get(i)->pos()->y());
-                        self.shape.setPosition(servermessage->player_data()->Get(i)->pos()->x(), servermessage->player_data()->Get(i)->pos()->y());
-                        self.shape.setSize(sf::Vector2f(50, 50));
+                        self.surface.setPosition(servermessage->player_data()->Get(i)->pos()->x(), servermessage->player_data()->Get(i)->pos()->y());
+                        self.surface.setSize(sf::Vector2f(50, 50));
                         if(self_id==1){
-                            self.shape.setFillColor(sf::Color::Green);
+                            self.surface.setFillColor(sf::Color::Green);
                         }
                         else if(self_id==2){
-                            self.shape.setFillColor(sf::Color::Blue);
+                            self.surface.setFillColor(sf::Color::Blue);
                         }
                         else if(self_id==3){
-                            self.shape.setFillColor(sf::Color::Red);
+                            self.surface.setFillColor(sf::Color::Red);
                         }
                         else if(self_id==4){
-                            self.shape.setFillColor(sf::Color::Magenta);
+                            self.surface.setFillColor(sf::Color::Magenta);
                         }
                     }
                 }
 
             }
             if(servermessage->player_data()->size()>other_players.size()+1){
-                cout<<"psizeserver:"<<servermessage->player_data()->size()<<endl;
-                cout<<"psizeclient"<<other_players.size()<<endl;
                 for(int i=0;i<servermessage->player_data()->size();i++){
                     int f=0;
                     for(int j=0;j<other_players.size();j++){
@@ -102,6 +101,7 @@ void receiveFromSender(){
             gameStart=1;
             cout<<"Game started"<<endl;  
             level.set_id(self_id);
+            level.setup_level(screen_width);
             continue;
         }
         //if message code==2:
@@ -197,13 +197,14 @@ int main(){
 
         if(gameStart==0){
            window.clear();
-           window.draw(self.shape);
+           window.draw(self.surface);
            for(auto others: other_players){
-                window.draw(others->shape);
+                window.draw(others->surface);
             }
             window.display();
         }
         else{
+            // cout<<"running level"<<endl;
             level.run();
         }
 
