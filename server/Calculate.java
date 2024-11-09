@@ -26,6 +26,7 @@ public class Calculate implements Runnable {
                 if (player != null) {
                     // Get inputs to determine movement direction
                     boolean[] inputs = getInputsFromClientMessage(clientMessage);
+                    //level.applyInput(player, inputs); level is instance of Level class
                     Vec2 currentCoords = player.getCoordinates();
                     
                     // Calculate new potential coordinates based on inputs

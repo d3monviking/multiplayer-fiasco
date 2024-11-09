@@ -2,8 +2,8 @@ import java.net.InetSocketAddress;
 import java.time.Instant;
 // Vec2 class to represent 2D coordinates (x, y)
 class Vec2 {
-    private float x;
-    private float y;
+    public float x;
+    public float y;
 
     public Vec2(float x, float y) {
         this.x = x;
@@ -31,6 +31,16 @@ public class Player {
     private int lastProcessedSeqNum;
     private Instant timestamp;
     private boolean canRead = false; // 1 if being read
+
+    public Vec2 vel;
+    public Vec2 acc;
+    public Vec2 size;
+
+    public boolean onGround;
+    public float prevXVel;
+    public float runAcc;
+    public float maxSpeed;
+    
 
     public Player(InetSocketAddress address, Vec2 coordinates, int playerId, int lastProcessedSeqNum, long timestamp) {
         this.address = address;
