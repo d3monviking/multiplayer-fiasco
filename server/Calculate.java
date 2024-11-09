@@ -13,6 +13,8 @@ public class Calculate implements Runnable {
         this.messageQueue = messageQueue;
     }
 
+    Level level = new Level(); // Create an instance of the Level class
+
     @Override
     public void run() {
         try {
@@ -26,16 +28,16 @@ public class Calculate implements Runnable {
                 if (player != null) {
                     // Get inputs to determine movement direction
                     boolean[] inputs = getInputsFromClientMessage(clientMessage);
-                    //level.applyInput(player, inputs); level is instance of Level class
+                    level.applyInput(player, inputs); //level is instance of Level class
                     Vec2 currentCoords = player.getCoordinates();
                     
                     // Calculate new potential coordinates based on inputs
                     float newX = currentCoords.getX();
                     float newY = currentCoords.getY();
-                    newY += (inputs[0] ? -2 : 0);  // Move up if inputs[0] is true
-                    newX += (inputs[1] ? -2 : 0);  // Move left if inputs[1] is true
-                    newY += (inputs[2] ? 2 : 0);   // Move down if inputs[2] is true
-                    newX += (inputs[3] ? 2 : 0);   // Move right if inputs[3] is true
+                    // newY += (inputs[0] ? -2 : 0);  // Move up if inputs[0] is true
+                    // newX += (inputs[1] ? -2 : 0);  // Move left if inputs[1] is true
+                    // newY += (inputs[2] ? 2 : 0);   // Move down if inputs[2] is true
+                    // newX += (inputs[3] ? 2 : 0);   // Move right if inputs[3] is true
 
                     // Check for collision with other players
                     for (Player otherPlayer : Server.getPlayerList()) {

@@ -6,7 +6,7 @@ class Level {
     private List<Tile> tiles;
     private Vec2 tileSize;
     private float gravity;
-    ArrayList<String> levelMap = new ArrayList<>(Arrays.asList(
+    private static ArrayList<String> levelMap = new ArrayList<>(Arrays.asList(
             "                   ",
                 "                   ",
                 "                   ",
@@ -34,6 +34,16 @@ class Level {
     private final float FRICTION = 0.9f;
     private final float JUMP_FORCE = 15f;
     private final float VELOCITY_THRESHOLD = 0.1f;
+
+    Level(){
+        for(int i = 0; i < levelMap.size(); i++){
+            for(int j = 0; j < levelMap.get(i).length(); j++){
+                if(levelMap.get(i).charAt(j) == 'X'){
+                    tiles.add(new Tile(new Vec2(j * tileSize.x, i * tileSize.y), tileSize));
+                }
+            }
+        }
+    }
 
     public void applyInput(Player self, boolean[] inputs) {
         self.prevXVel = self.vel.getX();

@@ -4,7 +4,7 @@ class Tile {
     private Vec2 acc;     // Acceleration
     private Vec2 size;    // Tile dimensions (width/height)
     
-    public Tile(Vec2 coords, Vec2 tileSize, boolean isPlayer) {
+    public Tile(Vec2 coords, Vec2 tileSize) {
         this.size = tileSize;
         this.vel = new Vec2(0, 0);
         this.acc = new Vec2(0, 0);
