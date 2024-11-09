@@ -1,4 +1,6 @@
 import Game.ClientMessage;
+
+import javax.swing.plaf.synth.SynthTabbedPaneUI;
 import java.util.concurrent.BlockingQueue;
 
 public class Calculate implements Runnable {
@@ -21,16 +23,18 @@ public class Calculate implements Runnable {
             while (true) {
                 // Get the next client message from the queue
                 ClientMessage clientMessage = messageQueue.take();
-
+//                System.out.println("pid " + clientMessage.selfData().playerId());
                 // Find the corresponding player
                 Player player = findPlayer(clientMessage.selfData().playerId());
-
                 if (player != null) {
+                    System.out.println("player found!!!!");
                     // Get inputs to determine movement direction
                     boolean[] inputs = getInputsFromClientMessage(clientMessage);
+//                    System.out.println("inputs: " + inputs[0] + " " + inputs[1] + " " + inputs[2] + " " + inputs[3]);
                     level.applyInput(player, inputs); //level is instance of Level class
+                    System.out.println(player.getCoordinates().getX() + " " + player.getCoordinates().getY());
                     Vec2 currentCoords = player.getCoordinates();
-                    
+                    System.out.println(currentCoords.getX() + " " + currentCoords.getY());
                     // Calculate new potential coordinates based on inputs
                     float newX = currentCoords.getX();
                     float newY = currentCoords.getY();
@@ -63,7 +67,7 @@ public class Calculate implements Runnable {
                     player.setCoordinates(new Vec2(newX, newY));
                     receive.printMessage(clientMessage);
                     System.out.println(player.getCoordinates().getX() + " " + player.getCoordinates().getY());
-                    System.out.println("pid " + clientMessage.selfData().pos().x() + " " + clientMessage.selfData().pos().y());
+                    System.out.println("coord " + clientMessage.selfData().pos().x() + " " + clientMessage.selfData().pos().y());
                     System.out.println("the last move in calculate is: " + clientMessage.sequenceNumber() + " " + ++mvnum);
                     player.setLastProcessedSeqNum(clientMessage.sequenceNumber());
                     player.setTimestamp(clientMessage.selfData().timestamp());
@@ -99,6 +103,7 @@ public class Calculate implements Runnable {
     private Player findPlayer(int playerId) {
         for (Player player : Server.getPlayerList()) {
             if (player.getPlayerId() == playerId) {
+                System.out.println("player found!!");
                 return player;
             }
         }

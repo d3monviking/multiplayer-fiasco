@@ -7,7 +7,7 @@ class Level {
     private Vec2 tileSize;
     private float gravity;
     private static ArrayList<String> levelMap = new ArrayList<>(Arrays.asList(
-            "                   ",
+                "                   ",
                 "                   ",
                 "                   ",
                 "                   ",
@@ -36,6 +36,9 @@ class Level {
     private final float VELOCITY_THRESHOLD = 0.1f;
 
     Level(){
+        tileSize = new Vec2(50, 50);
+        gravity = 0.7f;
+        tiles = new ArrayList<Tile>();
         for(int i = 0; i < levelMap.size(); i++){
             for(int j = 0; j < levelMap.get(i).length(); j++){
                 if(levelMap.get(i).charAt(j) == 'X'){
@@ -47,7 +50,6 @@ class Level {
 
     public void applyInput(Player self, boolean[] inputs) {
         self.prevXVel = self.vel.getX();
-        
         // Handle movement
         if (inputs[1]) {  // Left
             self.acc.x = -self.runAcc;

@@ -48,6 +48,13 @@ public class Player {
         this.playerId = playerId;
         this.lastProcessedSeqNum = lastProcessedSeqNum;
         this.timestamp = Instant.ofEpochMilli(timestamp); // Store the timestamp
+        this.vel = new Vec2(0, 0);
+        this.acc = new Vec2(0, 0);
+        this.size = new Vec2(50, 50);
+        this.onGround = true;
+        this.prevXVel = 0;
+        this.runAcc = 2f;
+        this.maxSpeed = 8f;
     }
 
     private synchronized void threadWriteNotify(){
