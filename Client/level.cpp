@@ -56,21 +56,16 @@ long long Level::setCurrentTimestamp() {
 
 void Level::scroll_x(){
     x_shift=0;
-    // cout<<self.facing_right<<endl;
     auto vel = self.prev_x_vel;
-    // cout<<vel<<endl;
     if(self.facing_right){
         if(self.coords.x<screen_width/3 || right_calibration<screen_width){
-            // cout<<"hi1"<<endl;
             x_shift=0;
         }
         else if(self.pos.x>screen_width/3){
-            // cout<<"hi2"<<endl;
             x_shift=-3*(vel)/2;
             self.pos.x-=(3*(vel)/2);
         }
         else{
-            // cout<<"hi3"<<endl;
             x_shift=-vel;
             self.pos.x-=vel;
         }
@@ -88,28 +83,64 @@ void Level::scroll_x(){
             self.pos.x-=vel;
         }
     }
-    // cout<<"calib:"<<x_shift<<" "<<right_calibration<<endl;
 
     right_calibration+=x_shift;
     left_calibration+=x_shift;
-    // cout<<right_calibration<<endl;
 }
 
 void Level::scroll_y(){
-    y_shift=0;
-    auto vel = self.vel.y+self.acc.y;
-
-    if(self.pos.y < screen_width/3){
-        y_shift=-vel;
-        self.pos.y-=vel;
-    }
-    else if(self.pos.y > 2*screen_width/3){
-        y_shift=-vel;
-        self.pos.y-=vel;
-    }
+    // y_shift=0;
+    auto vel = self.vel.y;
+    // cout<<"vel:"<<vel<<endl;
+    // if(self.pos.y < screen_width/3){
+    //     y_shift=-vel;
+    //     self.pos.y-=vel;
+    // }
+    // else if(self.pos.y > 2*screen_width/3){
+    //     y_shift=-vel;
+    //     self.pos.y-=vel;
+    // }
     
 
-    cout<<y_shift<<endl;
+    // // cout<<y_shift<<endl;
+
+    if(self.pos.y<screen_height/3 && vel<0 && self.coords.y>level_height/3){
+        y_shift = -vel;
+        self.pos.y += y_shift;
+        if(!shifted){
+            start_ypos = self.coords.y;
+        }
+        shifted=true;
+    }
+    else if(self.pos.y > 2*screen_height/3 && vel>0 && self.coords.y<level_height-screen_height/3){
+        y_shift = -vel;
+        self.pos.y += y_shift;
+        shifted=true;
+    }
+    else{
+        if(vel<0){
+            if(shifted && ((!self.on_ground) && (self.coords.y<start_ypos))){
+                y_shift = -vel;
+                self.pos.y += y_shift;
+            }
+            else{
+                y_shift=0;
+                shifted=false;
+            }
+        }
+        else{
+            if(shifted && ((!self.on_ground) && (self.coords.y>start_ypos) && (start_ypos<2*screen_height/3))){
+                y_shift = -vel;
+                self.pos.y += y_shift;
+            }
+            else{
+                y_shift=0;
+                shifted=false;
+            }
+        }
+    }
+
+
 }
 
 bool Level::colliding(sf::RectangleShape& rect1, sf::RectangleShape& rect2, sf::Vector2f coord1, sf::Vector2f coord2){
@@ -168,7 +199,6 @@ void Level::y_collisions(){
     self.vel.y+=self.acc.y;
     self.pos.y+=self.vel.y;
     self.coords.y+=self.vel.y;
-    cout<<"len:"<<tiles.size()<<endl;
     for(Tile& t:this->tiles){
         t.update(0, y_shift);
     }
@@ -189,7 +219,8 @@ void Level::y_collisions(){
                 self.on_ground=true;
             }
         }
-    }    
+    } 
+
 }
 
 void Level::applyLocalInput(vector<bool> &this_move){
