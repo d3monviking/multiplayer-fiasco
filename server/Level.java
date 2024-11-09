@@ -1,9 +1,34 @@
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 class Level {
     private List<Tile> tiles;
     private Vec2 tileSize;
     private float gravity;
+    ArrayList<String> levelMap = new ArrayList<>(Arrays.asList(
+            "                   ",
+                "                   ",
+                "                   ",
+                "                   ",
+                "                   ",
+                "XXXXXXXXXXXX  XXXXX",
+                "                   ",
+                "                   ",
+                "XXXX  XXXXXXXXXXXXX",
+                "                   ",
+                "                   ",
+                "                   ",
+                "                   ",
+                "                   ",
+                "XXXXXXXXXXXX  XXXXX",
+                "                   ",
+                "                   ",
+                "                   ",
+                "                   ",
+                "                   ",
+                "XXXXXXXXXXXXXXXXXXX"
+        ));
     
     // Constants
     private final float FRICTION = 0.9f;
