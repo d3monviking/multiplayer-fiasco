@@ -40,6 +40,7 @@ public class Player {
     public float prevXVel;
     public float runAcc;
     public float maxSpeed;
+    public boolean[] inputs = new boolean[5];
     
 
     public Player(InetSocketAddress address, Vec2 coordinates, int playerId, int lastProcessedSeqNum, long timestamp) {
