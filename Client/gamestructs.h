@@ -14,6 +14,7 @@ struct Move{
 
 struct SelfData{
     sf::Vector2f pos;
+    sf::Vector2f vel;
     long long timestamp;
     int last_processed_seq_num;
 };

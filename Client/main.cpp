@@ -128,6 +128,8 @@ void receiveFromSender(){
                     struct SelfData data;
                     data.pos.x = player_state->pos()->x();
                     data.pos.y = player_state->pos()->y();
+                    data.vel.x=player_state->vel()->x();
+                    data.vel.y=player_state->vel()->y();
                     data.timestamp=player_state->timestamp();
                     data.last_processed_seq_num=player_state->last_processed_seq_number();
                     updates_buffer.push_back(data);
@@ -155,10 +157,11 @@ int main(){
 
     auto player_id = -1;
     auto position = Game::Vec2(2.f, 2.f);
+    auto vel = Game::Vec2(2.f, 2.f);
     auto timestamp = 0;
     auto seq_number = -1;
 
-    auto selfData = CreatePlayerData(builder, player_id, &position, timestamp, seq_number);
+    auto selfData = CreatePlayerData(builder, player_id, &position, &vel,timestamp, seq_number);
 
     // Creating ClientMessage
     vector<bool> thisMove(4);

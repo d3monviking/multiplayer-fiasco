@@ -257,14 +257,18 @@ struct PlayerData FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_PLAYER_ID = 4,
     VT_POS = 6,
-    VT_TIMESTAMP = 8,
-    VT_LAST_PROCESSED_SEQ_NUMBER = 10
+    VT_VEL = 8,
+    VT_TIMESTAMP = 10,
+    VT_LAST_PROCESSED_SEQ_NUMBER = 12
   };
   int32_t player_id() const {
     return GetField<int32_t>(VT_PLAYER_ID, 0);
   }
   const Game::Vec2 *pos() const {
     return GetStruct<const Game::Vec2 *>(VT_POS);
+  }
+  const Game::Vec2 *vel() const {
+    return GetStruct<const Game::Vec2 *>(VT_VEL);
   }
   int64_t timestamp() const {
     return GetField<int64_t>(VT_TIMESTAMP, 0);
@@ -276,6 +280,7 @@ struct PlayerData FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyField<int32_t>(verifier, VT_PLAYER_ID, 4) &&
            VerifyField<Game::Vec2>(verifier, VT_POS, 4) &&
+           VerifyField<Game::Vec2>(verifier, VT_VEL, 4) &&
            VerifyField<int64_t>(verifier, VT_TIMESTAMP, 8) &&
            VerifyField<int32_t>(verifier, VT_LAST_PROCESSED_SEQ_NUMBER, 4) &&
            verifier.EndTable();
@@ -291,6 +296,9 @@ struct PlayerDataBuilder {
   }
   void add_pos(const Game::Vec2 *pos) {
     fbb_.AddStruct(PlayerData::VT_POS, pos);
+  }
+  void add_vel(const Game::Vec2 *vel) {
+    fbb_.AddStruct(PlayerData::VT_VEL, vel);
   }
   void add_timestamp(int64_t timestamp) {
     fbb_.AddElement<int64_t>(PlayerData::VT_TIMESTAMP, timestamp, 0);
@@ -313,11 +321,13 @@ inline ::flatbuffers::Offset<PlayerData> CreatePlayerData(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int32_t player_id = 0,
     const Game::Vec2 *pos = nullptr,
+    const Game::Vec2 *vel = nullptr,
     int64_t timestamp = 0,
     int32_t last_processed_seq_number = 0) {
   PlayerDataBuilder builder_(_fbb);
   builder_.add_timestamp(timestamp);
   builder_.add_last_processed_seq_number(last_processed_seq_number);
+  builder_.add_vel(vel);
   builder_.add_pos(pos);
   builder_.add_player_id(player_id);
   return builder_.Finish();

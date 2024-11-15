@@ -22,6 +22,7 @@ class Player{
         void set_id(int id);
         sf::Vector2f getPos();
         void setPos(float x, float y);
+        void moveCam(float x_shift, float y_shift);
 
     friend class Level;
 };

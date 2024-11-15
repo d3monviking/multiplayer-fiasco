@@ -266,6 +266,8 @@ void Level::processPendingUpdates(){
         cout<<"seqnum:"<<player_state.last_processed_seq_num<<" "<<player_state.pos.x<<" "<<player_state.pos.y<<endl;
         self.coords.x = player_state.pos.x; //set pos to last acked state and replay all inputs from that point to the present
         self.coords.y = player_state.pos.y;
+        self.vel.x=player_state.vel.x;
+        self.vel.y=player_state.vel.y;
         int k=0;
         while(k<move_history.size()){
             if(move_history[k].seq_num<=player_state.last_processed_seq_num){
@@ -330,10 +332,11 @@ void Level::updatePlayer(){
 
         auto player_id = self_id;
         auto position = Game::Vec2(self.pos.x, self.pos.y);
+        auto velocity = Game::Vec2(self.vel.x, self.vel.y);
         auto timestamp = std::time(nullptr);
         auto seq_number = newMove.seq_num;
 
-        auto selfData = CreatePlayerData(builder, player_id, &position, timestamp, seq_number);
+        auto selfData = CreatePlayerData(builder, player_id, &position, &velocity, timestamp, seq_number);
 
         // Creating ClientMessage
         auto player_input = builder.CreateVector(newMove.thisMove);
@@ -386,6 +389,8 @@ void Level::InterpolateEntity(Player *player){
         y=i->pos.y+(((j->pos.y-i->pos.y)/(j->timestamp-i->timestamp))*(rqd_time-i->timestamp));
         player->setPos(x,y);
     }
+
+    player->moveCam(x_shift, y_shift);
 }
 
 void Level::render(){
@@ -402,10 +407,10 @@ void Level::render(){
 }
 
 void Level::run(){
-    processPendingUpdates();
+    // processPendingUpdates();
     updatePlayer();
     for(auto player : other_players){
-        // InterpolateEntity(player);
+        InterpolateEntity(player);
     }
     render();
 }

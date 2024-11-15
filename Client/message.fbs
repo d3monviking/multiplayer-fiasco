@@ -1,0 +1,34 @@
+namespace Game;
+
+struct Vec2 {
+    x : float;
+    y : float;
+}
+
+table ClientMessage{
+    self_data : PlayerData;
+    player_input : [bool];
+    sequence_number : int;
+}
+
+table ServerMessage{
+    message_code : int;
+    player_data : [PlayerData];
+    player_id : int;
+}
+
+table PlayerData{
+    player_id : int;
+    pos : Vec2;
+    vel : Vec2;
+    timestamp : long;
+    last_processed_seq_number : int;
+}
+
+union GameData {ServerMessage, ClientMessage}
+
+table GameMessage{
+    data_type : GameData;
+}
+
+root_type GameMessage;
