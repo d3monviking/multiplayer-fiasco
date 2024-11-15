@@ -1,9 +1,3 @@
 #Ignore all .o files
 
 *.o
-*.class
-
-#Ignore all executables
-
-*
-!*/

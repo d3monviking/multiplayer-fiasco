@@ -34,42 +34,43 @@ public class Calculate implements Runnable {
                     System.out.println("seq " + clientMessage.selfData().lastProcessedSeqNumber());
 //                    System.out.println("inputs: " + inputs[0] + " " + inputs[1] + " " + inputs[2] + " " + inputs[3]);
                     level.applyInput(player, inputs); //level is instance of Level class
-                    level.applyPhysics(player); //apply dummy inputs until velocity is 0
+                    // level.applyPhysics(player); //apply dummy inputs until velocity is 0
                     System.out.println(player.getCoordinates().getX() + " " + player.getCoordinates().getY());
+                    Vec2 currentCoords = player.getCoordinates();
                     // Calculate new potential coordinates based on inputs
-//                    float newX = currentCoords.getX();
-//                    float newY = currentCoords.getY();
+                   float newX = currentCoords.getX();
+                   float newY = currentCoords.getY();
                     // newY += (inputs[0] ? -2 : 0);  // Move up if inputs[0] is true
                     // newX += (inputs[1] ? -2 : 0);  // Move left if inputs[1] is true
                     // newY += (inputs[2] ? 2 : 0);   // Move down if inputs[2] is true
                     // newX += (inputs[3] ? 2 : 0);   // Move right if inputs[3] is true
 
                     // Check for collision with other players
-//                    for (Player otherPlayer : Server.getPlayerList()) {
-//                        // Skip checking collision with the player itself
-//                        if (otherPlayer.getPlayerId() == player.getPlayerId()) {
-//                            continue;
-//                        }
-//                        System.out.println("other player id="+otherPlayer.getPlayerId());
-//
-//                        // Get other player's position
-//                        float objectX = otherPlayer.getCoordinates().getX();
-//                        float objectY = otherPlayer.getCoordinates().getY();
-//
-//                        // Check for collision with the new coordinates
-//                        if (checkCollision(newX, newY, WIDTH, HEIGHT, objectX, objectY, WIDTH, HEIGHT)) {
-//                            // Adjust the position to stop exactly at the point of collision
-//                            newX = adjustToCollision(newX, currentCoords.getX(), WIDTH, objectX, WIDTH, inputs[1], inputs[3]);
-//                            newY = adjustToCollision(newY, currentCoords.getY(), HEIGHT, objectY, HEIGHT, inputs[0], inputs[2]);
-//                        }
-//                    }
+                   for (Player otherPlayer : Server.getPlayerList()) {
+                       // Skip checking collision with the player itself
+                       if (otherPlayer.getPlayerId() == player.getPlayerId()) {
+                           continue;
+                       }
+                       System.out.println("other player id="+otherPlayer.getPlayerId());
+
+                       // Get other player's position
+                       float objectX = otherPlayer.getCoordinates().getX();
+                       float objectY = otherPlayer.getCoordinates().getY();
+
+                       // Check for collision with the new coordinates
+                       if (checkCollision(newX, newY, WIDTH, HEIGHT, objectX, objectY, WIDTH, HEIGHT)) {
+                           // Adjust the position to stop exactly at the point of collision
+                           newX = adjustToCollision(newX, currentCoords.getX(), WIDTH, objectX, WIDTH, inputs[1], inputs[3]);
+                           newY = adjustToCollision(newY, currentCoords.getY(), HEIGHT, objectY, HEIGHT, inputs[0], inputs[2]);
+                       }
+                   }
 
                     // Update player coordinates
-//                    player.setCoordinates(new Vec2(newX, newY));
-//                    receive.printMessage(clientMessage);
-//                    System.out.println(player.getCoordinates().getX() + " " + player.getCoordinates().getY());
-//                    System.out.println("coord " + clientMessage.selfData().pos().x() + " " + clientMessage.selfData().pos().y());
-//                    System.out.println("the last move in calculate is: " + clientMessage.sequenceNumber() + " " + ++mvnum);
+                   player.setCoordinates(new Vec2(newX, newY));
+                   receive.printMessage(clientMessage);
+                   System.out.println(player.getCoordinates().getX() + " " + player.getCoordinates().getY());
+                   System.out.println("coord " + clientMessage.selfData().pos().x() + " " + clientMessage.selfData().pos().y());
+                   System.out.println("the last move in calculate is: " + clientMessage.sequenceNumber() + " " + ++mvnum);
                     player.setLastProcessedSeqNum(clientMessage.sequenceNumber());
                     player.setTimestamp(clientMessage.selfData().timestamp());
                 }
