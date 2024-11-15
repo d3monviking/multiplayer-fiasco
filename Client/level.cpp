@@ -234,7 +234,7 @@ void Level::applyLocalInput(vector<bool> &this_move){
     else{
         self.acc.x=0;
         self.vel.x*=0.9;
-        if(self.vel.x<0.1){
+        if(abs(self.vel.x)<0.1){
             self.vel.x=0;
         }
     }
@@ -256,13 +256,16 @@ void Level::applyLocalInput(vector<bool> &this_move){
     else if(self.vel.x>0){
         self.facing_right=true;
     }
+
+    cout<<self.coords.x<<" "<<self.coords.y<<endl;
 }
         
 void Level::processPendingUpdates(){
-    for(int i=0;i<updates_buffer.size();i++){ //apply all pending updates one by one
-        auto player_state = updates_buffer[i];
-        self.pos.x = player_state.pos.x; //set pos to last acked state and replay all inputs from that point to the present
-        self.pos.y = player_state.pos.y;
+    if(updates_buffer.size()>0){ //apply latest pending update one by one
+        auto player_state = updates_buffer[updates_buffer.size()-1];
+        cout<<"seqnum:"<<player_state.last_processed_seq_num<<" "<<player_state.pos.x<<" "<<player_state.pos.y<<endl;
+        self.coords.x = player_state.pos.x; //set pos to last acked state and replay all inputs from that point to the present
+        self.coords.y = player_state.pos.y;
         int k=0;
         while(k<move_history.size()){
             if(move_history[k].seq_num<=player_state.last_processed_seq_num){
@@ -282,9 +285,10 @@ void Level::processPendingUpdates(){
             applyLocalInput(move_history[j].thisMove); //calculate state for this input
         }
         move_history=local_history;
+        updates_buffer.clear();
     }
 
-    updates_buffer.clear();
+    
 }
 
 void Level::updatePlayer(){
@@ -314,7 +318,7 @@ void Level::updatePlayer(){
 
     // Creating FlatBuffer variables to store and transmit data
 
-    if(flag==1){
+    
         newMove.seq_num=count++;
         newMove.pos.y=self.pos.y;
         newMove.pos.x=self.pos.x;
@@ -343,15 +347,15 @@ void Level::updatePlayer(){
         size_t size = builder.GetSize();
 
         boost::system::error_code ec;
-        // clientSocket.send_to(boost::asio::buffer(buf, size), serverEndpoint, 0, ec);
+        clientSocket.send_to(boost::asio::buffer(buf, size), serverEndpoint, 0, ec);
     
-        // if (ec) {
-        //     cerr << "Send failed: " << ec.message() << endl;
-        // }
+        if (ec) {
+            cerr << "Send failed: " << ec.message() << endl;
+        }
 
 
         
-    }
+    
     applyLocalInput(newMove.thisMove);
 
     
@@ -398,7 +402,7 @@ void Level::render(){
 }
 
 void Level::run(){
-    // processPendingUpdates();
+    processPendingUpdates();
     updatePlayer();
     for(auto player : other_players){
         // InterpolateEntity(player);
