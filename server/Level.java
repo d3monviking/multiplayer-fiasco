@@ -51,7 +51,6 @@ class Level {
 
     public void applyInput(Player self, boolean[] inputs) {
         self.prevXVel = self.vel.getX();
-        System.out.println("Applying local");
         // Handle movement
         if (inputs[1]) {  // Left
             self.acc.x = -self.runAcc;
@@ -76,11 +75,11 @@ class Level {
         // detectInterPlayerCollisions();
     }
 
-    public void applyPhysics(Player self) {
-        while(self.vel.x != 0){
-            this.applyInput(self, inputs);
-        }
-    }
+//    public void applyPhysics(Player self) {
+//        while(self.vel.x != 0){
+//            this.applyInput(self, inputs);
+//        }
+//    }
     
     private void xCollisions(Player self) {
         // Apply horizontal acceleration and speed limit
@@ -88,9 +87,9 @@ class Level {
         self.vel.x = Math.min(Math.max(self.vel.x, -self.maxSpeed), self.maxSpeed);
         
         // Update position
-        System.out.println("Get x " + self.getCoordinates().x);
+//        System.out.println("Get x " + self.getCoordinates().x);
         self.getCoordinates().x += self.vel.x;
-        System.out.println("Set x " + self.getCoordinates().x);
+//        System.out.println("Set x " + self.getCoordinates().x);
         // Check collisions with tiles
         for (Tile t : tiles) {
             if (checkCollision(t, self)) {

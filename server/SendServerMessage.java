@@ -24,6 +24,8 @@ public class SendServerMessage implements Runnable {
             PlayerData.startPlayerData(fbb);
             PlayerData.addPlayerId(fbb, player.getPlayerId());
             int pos = Vec2.createVec2(fbb, player.getCoordinates().getX(), player.getCoordinates().getY());
+            int vel = Vec2.createVec2(fbb, player.vel.getX(), player.vel.getY());
+            PlayerData.addVel(fbb, vel);
             // System.out.println("Player ID: " + player.getPlayerId() + " X: " + player.getCoordinates().getX() + " Y: " + player.getCoordinates().getY());
             PlayerData.addPos(fbb, pos);
             PlayerData.addTimestamp(fbb, player.getTimestampMilli());
