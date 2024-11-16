@@ -5,7 +5,7 @@ using namespace std;
 using boost::asio::ip::udp;
 boost::asio::io_context io_context;
 udp::socket clientSocket(io_context);
-udp::endpoint serverEndpoint(boost::asio::ip::make_address("127.0.0.1"), 8888);
+udp::endpoint serverEndpoint(boost::asio::ip::make_address("172.20.10.7"), 8888);
 
 int screen_width=600;
 int screen_height=600;
@@ -61,6 +61,7 @@ void receiveFromSender(){
                     if(servermessage->player_data()->Get(i)->player_id()==self_id){
                         self.setPos(servermessage->player_data()->Get(i)->pos()->x(), servermessage->player_data()->Get(i)->pos()->y());
                         self.surface.setPosition(servermessage->player_data()->Get(i)->pos()->x(), servermessage->player_data()->Get(i)->pos()->y());
+                        self.setCoords(servermessage->player_data()->Get(i)->pos()->x(), servermessage->player_data()->Get(i)->pos()->y());
                         self.surface.setSize(sf::Vector2f(50, 50));
                         if(self_id==1){
                             self.surface.setFillColor(sf::Color::Green);
@@ -143,6 +144,7 @@ void receiveFromSender(){
 }
 
 int main(){
+    // cout<<"bruh"<<endl;
     window.setPosition(sf::Vector2i(10, 50));
     window.setFramerateLimit(60);
 
@@ -176,6 +178,8 @@ int main(){
 
     uint8_t* buf = builder.GetBufferPointer();
     size_t size = builder.GetSize();
+    // cout<<size<<endl;
+    // cout<<"hiiiiiiiiiii"<<endl;
 
     boost::system::error_code ec;
     clientSocket.send_to(boost::asio::buffer(buf, size), serverEndpoint, 0, ec);
