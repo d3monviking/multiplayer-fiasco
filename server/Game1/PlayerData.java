@@ -33,14 +33,14 @@ public final class PlayerData extends Table {
   public Game.Vec2 vel() { return vel(new Game.Vec2()); }
   public Game.Vec2 vel(Game.Vec2 obj) { int o = __offset(8); return o != 0 ? obj.__assign(o + bb_pos, bb) : null; }
   public long timestamp() { int o = __offset(10); return o != 0 ? bb.getLong(o + bb_pos) : 0L; }
-  public int lastProcessedSeqNumber() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public long lastProcessedSeqNumber() { int o = __offset(12); return o != 0 ? bb.getLong(o + bb_pos) : 0L; }
 
   public static void startPlayerData(FlatBufferBuilder builder) { builder.startTable(5); }
   public static void addPlayerId(FlatBufferBuilder builder, int playerId) { builder.addInt(0, playerId, 0); }
   public static void addPos(FlatBufferBuilder builder, int posOffset) { builder.addStruct(1, posOffset, 0); }
   public static void addVel(FlatBufferBuilder builder, int velOffset) { builder.addStruct(2, velOffset, 0); }
   public static void addTimestamp(FlatBufferBuilder builder, long timestamp) { builder.addLong(3, timestamp, 0L); }
-  public static void addLastProcessedSeqNumber(FlatBufferBuilder builder, int lastProcessedSeqNumber) { builder.addInt(4, lastProcessedSeqNumber, 0); }
+  public static void addLastProcessedSeqNumber(FlatBufferBuilder builder, long lastProcessedSeqNumber) { builder.addLong(4, lastProcessedSeqNumber, 0L); }
   public static int endPlayerData(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;

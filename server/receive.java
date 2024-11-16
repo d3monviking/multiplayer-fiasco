@@ -21,11 +21,11 @@ public class receive implements Runnable {
 
     public static ClientMessage receiveMessage(DatagramPacket packet) {
         byte[] buffer = packet.getData();
-        System.out.println(packet.getSocketAddress());
+        // System.out.println(packet.getSocketAddress());
         ByteBuffer buff = ByteBuffer.wrap(buffer);
         GameMessage gameMessage = GameMessage.getRootAsGameMessage(buff);
         ClientMessage message = (ClientMessage) gameMessage.dataType(new ClientMessage());
-        System.out.println(message.selfData().playerId());
+        // System.out.println(message.selfData().playerId());
         // ClientMessage message = ClientMessage.getRootAsClientMessage(buff);
         return message;
     }

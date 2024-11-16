@@ -12,7 +12,7 @@ table ClientMessage{
 }
 
 table ServerMessage{
-    message_code : string;
+    message_code : int;
     player_data : [PlayerData];
     player_id : int;
 }

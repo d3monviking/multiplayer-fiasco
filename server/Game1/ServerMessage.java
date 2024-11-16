@@ -27,7 +27,9 @@ public final class ServerMessage extends Table {
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public ServerMessage __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public int messageCode() { int o = __offset(4); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public String messageCode() { int o = __offset(4); return o != 0 ? __string(o + bb_pos) : null; }
+  public ByteBuffer messageCodeAsByteBuffer() { return __vector_as_bytebuffer(4, 1); }
+  public ByteBuffer messageCodeInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 4, 1); }
   public Game.PlayerData playerData(int j) { return playerData(new Game.PlayerData(), j); }
   public Game.PlayerData playerData(Game.PlayerData obj, int j) { int o = __offset(6); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
   public int playerDataLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
@@ -36,18 +38,18 @@ public final class ServerMessage extends Table {
   public int playerId() { int o = __offset(8); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
   public static int createServerMessage(FlatBufferBuilder builder,
-      int messageCode,
+      int messageCodeOffset,
       int playerDataOffset,
       int playerId) {
     builder.startTable(3);
     ServerMessage.addPlayerId(builder, playerId);
     ServerMessage.addPlayerData(builder, playerDataOffset);
-    ServerMessage.addMessageCode(builder, messageCode);
+    ServerMessage.addMessageCode(builder, messageCodeOffset);
     return ServerMessage.endServerMessage(builder);
   }
 
   public static void startServerMessage(FlatBufferBuilder builder) { builder.startTable(3); }
-  public static void addMessageCode(FlatBufferBuilder builder, int messageCode) { builder.addInt(0, messageCode, 0); }
+  public static void addMessageCode(FlatBufferBuilder builder, int messageCodeOffset) { builder.addOffset(0, messageCodeOffset, 0); }
   public static void addPlayerData(FlatBufferBuilder builder, int playerDataOffset) { builder.addOffset(1, playerDataOffset, 0); }
   public static int createPlayerDataVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
   public static void startPlayerDataVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }

@@ -23,11 +23,11 @@ public class SendServerMessage implements Runnable {
             Player player = playerList.get(i);
             PlayerData.startPlayerData(fbb);
             PlayerData.addPlayerId(fbb, player.getPlayerId());
-            int pos = Vec2.createVec2(fbb, player.getCoordinates().getX(), player.getCoordinates().getY());
-            int vel = Vec2.createVec2(fbb, player.vel.getX(), player.vel.getY());
-            PlayerData.addVel(fbb, vel);
+            // int pos = Vec2.createVec2(fbb, player.getCoordinates().getX(), player.getCoordinates().getY());
+            // int vel = Vec2.createVec2(fbb, player.vel.getX(), player.vel.getY());
             // System.out.println("Player ID: " + player.getPlayerId() + " X: " + player.getCoordinates().getX() + " Y: " + player.getCoordinates().getY());
-            PlayerData.addPos(fbb, pos);
+            PlayerData.addPos(fbb, Vec2.createVec2(fbb, player.getCoordinates().getX(), player.getCoordinates().getY()));
+            PlayerData.addVel(fbb, Vec2.createVec2(fbb, player.vel.getX(), player.vel.getY()));
             PlayerData.addTimestamp(fbb, player.getTimestampMilli());
             PlayerData.addLastProcessedSeqNumber(fbb, player.getLastProcessedSeqNum());
             playerDataList[i] = PlayerData.endPlayerData(fbb);
@@ -42,9 +42,10 @@ public class SendServerMessage implements Runnable {
             data = makeGameMessage(fbb, serverMessage);
             message = new DatagramPacket(data, data.length);
         }
-        else if(messageCode == 0 || messageCode == 1){
+        else{
             ServerMessage.startServerMessage(fbb);
             ServerMessage.addMessageCode(fbb, messageCode);
+            // System.out.println("apt " + messageCode);
             ServerMessage.addPlayerId(fbb, playerID);
             ServerMessage.addPlayerData(fbb, playerDataVector);
             int serverMessage = ServerMessage.endServerMessage(fbb);

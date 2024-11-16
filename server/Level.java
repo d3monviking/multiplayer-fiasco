@@ -8,27 +8,27 @@ class Level {
     private float gravity;
     private boolean[] inputs = new boolean[5];
     private static ArrayList<String> levelMap = new ArrayList<>(Arrays.asList(
-                "                   ",
-                "                   ",
-                "                   ",
-                "                   ",
-                "                   ",
-                "XXXXXXXXXXXX  XXXXX",
-                "                   ",
-                "                   ",
-                "XXXX  XXXXXXXXXXXXX",
-                "                   ",
-                "                   ",
-                "                   ",
-                "                   ",
-                "                   ",
-                "XXXXXXXXXXXX  XXXXX",
-                "                   ",
-                "                   ",
-                "                   ",
-                "                   ",
-                "                   ",
-                "XXXXXXXXXXXXXXXXXXX"
+                                            "                   ",
+                                            "                   ",
+                                            "                   ",
+                                            "                   ",
+                                            "                   ",
+                                            "XXXXXXXXXXXX  XXXXX",
+                                            "                   ",
+                                            "                   ",
+                                            "XXXX  XXXXXXXXXXXXX",
+                                            "                   ",
+                                            "                   ",
+                                            "                   ",
+                                            "                   ",
+                                            "                   ",
+                                            "XXXXXXXXXXXX  XXXXX",
+                                            "                   ",
+                                            "                   ",
+                                            "                   ",
+                                            "                   ",
+                                            "                   ",
+                                            "XXXXXXXXXXXXXXXXXXX"
         ));
     
     // Constants
