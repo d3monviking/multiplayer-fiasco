@@ -38,6 +38,9 @@ void Player::setPos(float x,float y) {
 }
 
 void Player::moveCam(float x_shift, float y_shift){
-    setPos(pos.x+x_shift, pos.y+y_shift);
+    cout<<pos.x<<" "<<pos.y<<endl;
+    this->setPos(this->pos.x+x_shift, this->pos.y+y_shift);
+    cout<<pos.x<<" "<<pos.y<<endl;
+    cout<<"----------"<<endl;
 }
 

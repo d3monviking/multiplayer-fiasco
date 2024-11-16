@@ -257,7 +257,7 @@ void Level::applyLocalInput(vector<bool> &this_move){
         self.facing_right=true;
     }
 
-    cout<<self.coords.x<<" "<<self.coords.y<<endl;
+    // cout<<self.coords.x<<" "<<self.coords.y<<endl;
 }
         
 void Level::processPendingUpdates(){
@@ -388,9 +388,9 @@ void Level::InterpolateEntity(Player *player){
         x=i->pos.x+(((j->pos.x-i->pos.x)/(j->timestamp-i->timestamp))*(rqd_time-i->timestamp));
         y=i->pos.y+(((j->pos.y-i->pos.y)/(j->timestamp-i->timestamp))*(rqd_time-i->timestamp));
         player->setPos(x,y);
+
     }
 
-    player->moveCam(x_shift, y_shift);
 }
 
 void Level::render(){
@@ -410,7 +410,10 @@ void Level::run(){
     // processPendingUpdates();
     updatePlayer();
     for(auto player : other_players){
-        InterpolateEntity(player);
+
+        // InterpolateEntity(player);
+        player->moveCam(x_shift, y_shift);
+
     }
     render();
 }
