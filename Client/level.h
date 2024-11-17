@@ -11,6 +11,7 @@ class Level{
         int gameStart=0;
         sf::Vector2f tileSize = sf::Vector2f(50, 50);
         sf::RenderWindow* display_surface;
+        std::map<int, sf::Vector2f> movemap;
         long long count=0;
         int self_id;
         float x_shift=0;
@@ -27,11 +28,11 @@ class Level{
                                             "                   ",
                                             "                   ",
                                             "                   ",
-                                            " P                 ",
-                                            "XXXXXXXXXXXX  XXXXX",
+                                            "  P  X             ",
+                                            "XXX  XXXXXXXXXXXXXX",
                                             "                   ",
                                             "                   ",
-                                            "XXXX  XXXXXXXXXXXXX",
+                                            "XXXXXXXXXXXXXXXXXXX",
                                             "                   ",
                                             "                   ",
                                             "                   ",
@@ -58,7 +59,7 @@ class Level{
         void scroll_y();
         void x_collisions();
         void y_collisions();
-        void applyLocalInput(std::vector<bool> &this_move);
+        void applyLocalInput(std::vector<bool> &this_move, int camFlag);
         void processPendingUpdates();
         void updatePlayer();
         void InterpolateEntity(Player* player);

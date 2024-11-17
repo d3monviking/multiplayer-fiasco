@@ -34,13 +34,18 @@ void Level::setup_level(int screen_width){
                 Tile t(sf::Vector2f(x,y), tileSize);
                 tiles.push_back(t);
             }
-            else if(level_map[i][j]=='P'){
-                self.setPos(x, y);
-                self.coords.x=x;
-                self.coords.y=y;
-            }
+            // else if(level_map[i][j]=='P'){
+            //     // cout<<"setplayerpos"<<endl;
+            //     self.setPos(x, y);
+            //     self.coords.x=x;
+            //     self.coords.y=y;
+            // }
+
+            cout<<"playerpoapt:"<<self.pos.x<<endl;
         }
     }
+
+
 }
 
 void Level::set_id(int id){self_id=id;}
@@ -223,7 +228,7 @@ void Level::y_collisions(){
 
 }
 
-void Level::applyLocalInput(vector<bool> &this_move){
+void Level::applyLocalInput(vector<bool> &this_move, int camFlag){
     self.prev_x_vel=self.vel.x;
     if(this_move[1]==1){
         self.acc.x=-self.runacc;
@@ -245,11 +250,15 @@ void Level::applyLocalInput(vector<bool> &this_move){
             self.on_ground=false;
         }
     }
-    scroll_x();
+    if(camFlag==1){
+        // scroll_x();
+    }
     x_collisions();
-    scroll_y();
+    if(camFlag==1){
+        // scroll_y();
+    }
     y_collisions();
-    self.surface.setPosition(self.pos);
+    self.surface.setPosition(self.coords);
     if(self.vel.x<0){
         self.facing_right=false;
     }
@@ -264,10 +273,15 @@ void Level::processPendingUpdates(){
     if(updates_buffer.size()>0){ //apply latest pending update one by one
         auto player_state = updates_buffer[updates_buffer.size()-1];
         cout<<"seqnum:"<<player_state.last_processed_seq_num<<" "<<player_state.pos.x<<" "<<player_state.pos.y<<endl;
+        cout<<self.pos.x<<" "<<self.pos.y<<" "<<self.coords.x<<" "<<self.coords.y<<endl;
         self.coords.x = player_state.pos.x; //set pos to last acked state and replay all inputs from that point to the present
         self.coords.y = player_state.pos.y;
         self.vel.x=player_state.vel.x;
         self.vel.y=player_state.vel.y;
+        if(player_state.last_processed_seq_num!=-1){
+            self.pos.x = movemap[player_state.last_processed_seq_num].x;
+            self.pos.y = movemap[player_state.last_processed_seq_num].y;
+        }
         int k=0;
         while(k<move_history.size()){
             if(move_history[k].seq_num<=player_state.last_processed_seq_num){
@@ -284,7 +298,7 @@ void Level::processPendingUpdates(){
         move_history=local_history;
         
         for(int j=0;j<move_history.size();j++){
-            applyLocalInput(move_history[j].thisMove); //calculate state for this input
+            applyLocalInput(move_history[j].thisMove, 0); //calculate state for this input
         }
         move_history=local_history;
         updates_buffer.clear();
@@ -320,11 +334,13 @@ void Level::updatePlayer(){
 
     // Creating FlatBuffer variables to store and transmit data
 
-    
+        cout<<"apt"<<self.pos.x<<endl;
         newMove.seq_num=count++;
         newMove.pos.y=self.pos.y;
         newMove.pos.x=self.pos.x;
         move_history.push_back(newMove);
+        movemap[count] = sf::Vector2f(self.pos.x, self.pos.y);
+        // cout<<"storing:"<<self.pos.x<<endl;
 
         flatbuffers::FlatBufferBuilder builder(1024);
 
@@ -359,7 +375,7 @@ void Level::updatePlayer(){
 
         
     
-    applyLocalInput(newMove.thisMove);
+    applyLocalInput(newMove.thisMove, 1);
 
     
 }
@@ -407,7 +423,7 @@ void Level::render(){
 }
 
 void Level::run(){
-    // processPendingUpdates();
+    processPendingUpdates();
     updatePlayer();
     for(auto player : other_players){
 
