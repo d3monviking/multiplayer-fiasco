@@ -81,7 +81,7 @@ public class receive implements Runnable {
         // System.out.println("hello0");
         while (true) {
             // System.out.println("hello11");
-            DatagramPacket packet = new DatagramPacket(new byte[104], 104);
+            DatagramPacket packet = new DatagramPacket(new byte[112], 112);
             try {
                 // System.out.println("hello12");
                 Server.udpSocket.receive(packet);

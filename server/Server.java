@@ -27,6 +27,16 @@ public class Server {
         return playerCount;
     }
 
+    public static int ipv4ToInt(String ip) {
+        String[] parts = ip.split("\\.");
+        int result = 0;
+        for (int i = 0; i < parts.length; i++) {
+            result |= (Integer.parseInt(parts[i]) << (24 - (8 * i)));
+        }
+        return result;
+    }
+
+
     public static void main(String[] args) throws SocketException {
         udpSocket = new DatagramSocket(serverPort);
         try {
@@ -64,7 +74,6 @@ public class Server {
         Player newPlayer = new Player(clientSocketAddress, new Vec2(50+100*(playerCount), 200), ++playerCount, lastProcessedSeqNum, System.currentTimeMillis());
         playerList.add(newPlayer);
         DatagramPacket playerIDPacket = SendServerMessage.makeServerMessage(0, newPlayer.getPlayerId());
-        System.out.println(newPlayer.getPlayerId() + " " + newPlayer.getAddress().getAddress());
         try {
             udpSocket.send(playerIDPacket);
             playerIDPacket.setAddress(newPlayer.getAddress().getAddress());
