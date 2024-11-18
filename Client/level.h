@@ -24,27 +24,29 @@ class Level{
         int level_height;
         bool shifted=false;
         float start_ypos=0;
-        std::vector<std::string> level_map={"                   ",
-                                            "                   ",
-                                            "                   ",
-                                            "                   ",
-                                            "  P  X             ",
-                                            "XXX  XXXXXXXXXXXXXX",
-                                            "                   ",
-                                            "                   ",
-                                            "XXXXXXXXXXXXXXXXXXX",
-                                            "                   ",
-                                            "                   ",
-                                            "                   ",
-                                            "                   ",
-                                            "                   ",
-                                            "XXXXXXXXXXXX  XXXXX",
-                                            "                   ",
-                                            "                   ",
-                                            "                   ",
-                                            "                   ",
-                                            "                   ",
-                                            "XXXXXXXXXXXXXXXXXXX",
+        sf::View gameView;
+        float cameraOffsetX = 100.0f;
+        std::vector<std::string> level_map={"                                                ",
+                                            "                                                ",
+                                            "                                                ",
+                                            "                                                ",
+                                            "  P  X                                          ",
+                                            "XXX  XXXXXXXXX  XXX  XXXXXXX                    ",
+                                            "                                                ",
+                                            "                                                ",
+                                            "XXXXXXXXXXXXXXXXXXX           XXXXXXXXXX        ",
+                                            "                                                ",
+                                            "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                                            "                                                ",
+                                            "                                                ",
+                                            "                                                ",
+                                            "XXXXXXXXXXXX  XXXXX                             ",
+                                            "                                                ",
+                                            "                                                ",
+                                            "                                                ",
+                                            "                                                ",
+                                            "                                                ",
+                                            "XXXXXXXXXXXXXXXXXXX                             ",
                                             };
         
         // vector<Tile> tiles;
@@ -54,6 +56,7 @@ class Level{
         Level();
         void set_id(int id);
         long long setCurrentTimestamp();
+        void updateCamera();
         void setup_level(int screen_width);
         void scroll_x();
         void scroll_y();

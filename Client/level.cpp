@@ -15,37 +15,115 @@ extern int screen_width;
 extern int screen_height;
 
 
-Level::Level(sf::RenderWindow* window, int screen_width){
-    display_surface=window;
-    level_height=level_map.size()*tileSize.y;
-    level_width=level_map[0].size()*tileSize.x;
-    // setup_level(screen_width);
+Level::Level(sf::RenderWindow* window, int screen_width) {
+    display_surface = window;
+    level_height = level_map.size() * tileSize.y;
+    level_width = level_map[0].size() * tileSize.x;
+    
+    // Create and configure the camera view
+    gameView.reset(sf::FloatRect(0, 0, screen_width, screen_height));
+    gameView.setCenter(screen_width/2, screen_height/2);
 }
 
-Level::Level(){}
+Level::Level() {}
 
-void Level::setup_level(int screen_width){
-    right_calibration=level_width;
-    for(int i=0;i<level_map.size();i++){
-        for(int j=0;j<level_map[0].size();j++){
-            int x = tileSize.x*j;
-            int y = tileSize.y*i;
-            if(level_map[i][j]=='X'){
+void Level::setup_level(int screen_width) {
+    for(int i = 0; i < level_map.size(); i++) {
+        for(int j = 0; j < level_map[0].size(); j++) {
+            int x = tileSize.x * j;
+            int y = tileSize.y * i;
+            if(level_map[i][j] == 'X') {
                 Tile t(sf::Vector2f(x,y), tileSize);
                 tiles.push_back(t);
             }
-            // else if(level_map[i][j]=='P'){
-            //     // cout<<"setplayerpos"<<endl;
-            //     self.setPos(x, y);
-            //     self.coords.x=x;
-            //     self.coords.y=y;
-            // }
-
-            cout<<"playerpoapt:"<<self.pos.x<<endl;
         }
     }
+}
+
+void Level::updateCamera() {
+    static sf::Clock clock;
+    float deltaTime = clock.restart().asSeconds();
+
+    float desiredOffset = (1.0f / 3.0f) * gameView.getSize().x;
+    float smoothing = 3.0f;
+
+    // Determine offset based on facing direction
+    float targetOffsetX = self.facing_right ? desiredOffset : -desiredOffset;
+
+    // Smoothly interpolate camera offset
+    cameraOffsetX += (targetOffsetX - cameraOffsetX) * smoothing * deltaTime;
+
+    // Set target center based on player position plus offset
+    sf::Vector2f targetCenter = self.coords;
+    targetCenter.x += cameraOffsetX;
+
+    // Clamp the camera within the level boundaries
+    float halfViewWidth = gameView.getSize().x / 2.f;
+    float halfViewHeight = gameView.getSize().y / 2.f;
+    targetCenter.x = std::max(halfViewWidth, std::min(targetCenter.x, level_width - halfViewWidth));
+    targetCenter.y = std::max(halfViewHeight, std::min(targetCenter.y, level_height - halfViewHeight));
+
+    // Smooth camera movement
+    sf::Vector2f currentCenter = gameView.getCenter();
+    sf::Vector2f newCenter = currentCenter + (targetCenter - currentCenter) * smoothing * deltaTime;
+
+    gameView.setCenter(newCenter);
+}
 
 
+void Level::x_collisions() {
+    self.vel.x += self.acc.x;
+    if(self.vel.x > self.maxspeed) {
+        self.vel.x = self.maxspeed;
+    }
+    else if(self.vel.x < -self.maxspeed) {
+        self.vel.x = -self.maxspeed;
+    }
+
+    self.coords.x += self.vel.x;
+    self.pos.x = self.coords.x;  // Update screen position based on world coordinates
+
+    for(Tile t : tiles) {
+        if(colliding(t.surface, self.surface, t.coords, self.coords)) {
+            float relVel = self.vel.x - t.vel.x;
+            
+            if(relVel < 0) {
+                self.coords.x = t.coords.x + tileSize.x;
+                self.pos.x = self.coords.x;
+                self.vel.x = 0;
+            }
+            else if(relVel > 0) {
+                self.coords.x = t.coords.x - self.surface.getSize().x;
+                self.pos.x = self.coords.x;
+                self.vel.x = 0;
+            }
+        }
+    }
+}
+
+void Level::y_collisions() {
+    self.acc.y = gravity;
+    self.vel.y += self.acc.y;
+    self.coords.y += self.vel.y;
+    self.pos.y = self.coords.y;  // Update screen position based on world coordinates
+
+    for(Tile t : tiles) {
+        if(colliding(t.surface, self.surface, t.coords, self.coords)) {
+            float relVel = self.vel.y - t.vel.y;
+
+            if(relVel < 0) {
+                self.coords.y = t.coords.y + tileSize.y;
+                self.pos.y = self.coords.y;
+                self.vel.y = 0;
+            }
+            else if(relVel > 0) {
+                self.coords.y = t.coords.y - self.surface.getSize().y;
+                self.pos.y = self.coords.y;
+                self.vel.y = 0;
+                self.on_ground = true;
+            }
+        }
+    }
 }
 
 void Level::set_id(int id){self_id=id;}
@@ -59,95 +137,6 @@ long long Level::setCurrentTimestamp() {
     return duration.count();  // This will give you the time in milliseconds
 }
 
-void Level::scroll_x(){
-    x_shift=0;
-    auto vel = self.prev_x_vel;
-    if(self.facing_right){
-        if(self.coords.x<screen_width/3 || right_calibration<screen_width){
-            x_shift=0;
-        }
-        else if(self.pos.x>screen_width/3){
-            x_shift=-3*(vel)/2;
-            self.pos.x-=(3*(vel)/2);
-        }
-        else{
-            x_shift=-vel;
-            self.pos.x-=vel;
-        }
-    }
-    else{
-        if(left_calibration>0 || self.coords.x>level_width-screen_width/3){
-            x_shift=0;
-        }
-        else if(self.pos.x<2*screen_width/3){
-            x_shift=-3*(vel)/2;
-            self.pos.x-=(3*(vel)/2);
-        }
-        else{
-            x_shift=-vel;
-            self.pos.x-=vel;
-        }
-    }
-
-    right_calibration+=x_shift;
-    left_calibration+=x_shift;
-}
-
-void Level::scroll_y(){
-    // y_shift=0;
-    auto vel = self.vel.y;
-    // cout<<"vel:"<<vel<<endl;
-    // if(self.pos.y < screen_width/3){
-    //     y_shift=-vel;
-    //     self.pos.y-=vel;
-    // }
-    // else if(self.pos.y > 2*screen_width/3){
-    //     y_shift=-vel;
-    //     self.pos.y-=vel;
-    // }
-    
-
-    // // cout<<y_shift<<endl;
-
-    if(self.pos.y<screen_height/3 && vel<0 && self.coords.y>level_height/3){
-        y_shift = -vel;
-        self.pos.y += y_shift;
-        if(!shifted){
-            start_ypos = self.coords.y;
-        }
-        shifted=true;
-    }
-    else if(self.pos.y > 2*screen_height/3 && vel>0 && self.coords.y<level_height-screen_height/3){
-        y_shift = -vel;
-        self.pos.y += y_shift;
-        shifted=true;
-    }
-    else{
-        if(vel<0){
-            if(shifted && ((!self.on_ground) && (self.coords.y<start_ypos))){
-                y_shift = -vel;
-                self.pos.y += y_shift;
-            }
-            else{
-                y_shift=0;
-                shifted=false;
-            }
-        }
-        else{
-            if(shifted && ((!self.on_ground) && (self.coords.y>start_ypos) && (start_ypos<2*screen_height/3))){
-                y_shift = -vel;
-                self.pos.y += y_shift;
-            }
-            else{
-                y_shift=0;
-                shifted=false;
-            }
-        }
-    }
-
-
-}
-
 bool Level::colliding(sf::RectangleShape& rect1, sf::RectangleShape& rect2, sf::Vector2f coord1, sf::Vector2f coord2){
     if((coord1.x+rect1.getSize().x>coord2.x) && (coord1.x<coord2.x+rect2.getSize().x) && (coord1.y+rect1.getSize().y>coord2.y) && (coord1.y<coord2.y+rect2.getSize().y)){
         return true;
@@ -157,116 +146,44 @@ bool Level::colliding(sf::RectangleShape& rect1, sf::RectangleShape& rect2, sf::
     }
 }
 
-void Level::x_collisions(){
-    self.vel.x+=self.acc.x;
-    if(self.vel.x>self.maxspeed){
-        self.vel.x=self.maxspeed;
+void Level::applyLocalInput(vector<bool> &this_move, int camFlag) {
+    self.prev_x_vel = self.vel.x;
+    if(this_move[1] == 1) {
+        self.acc.x = -self.runacc;
     }
-    else if(self.vel.x<-self.maxspeed){
-        self.vel.x=-self.maxspeed;
+    else if(this_move[3] == 1) {
+        self.acc.x = self.runacc;
     }
-
-    self.pos.x+=self.vel.x;
-    self.coords.x+=self.vel.x;
-
-
-    for(Tile& t:this->tiles){
-        t.update(x_shift, 0);
-    }
-
-    for(Tile t:this->tiles){ //player-tile collisions
-        if(colliding(t.surface, self.surface, t.coords, self.coords)){
-            // cout<<"collision"<<endl;
-
-            float relVel = self.vel.x-t.vel.x;
-            
-            if(relVel<0){
-                self.pos.x = t.pos.x + tileSize.x;
-                self.coords.x = t.coords.x + tileSize.x;
-                self.vel.x=0;
-            }
-            else if(relVel>0){
-                self.pos.x = t.pos.x - self.surface.getSize().x;
-                self.coords.x = t.coords.x - self.surface.getSize().x;
-                self.vel.x=0;
-            }
-        }
-        // else{
-        //     cout<<"no collision"<<endl;
-        // }
-
-
-    }
-}
-
-void Level::y_collisions(){
-    self.acc.y = gravity;
-    self.vel.y+=self.acc.y;
-    self.pos.y+=self.vel.y;
-    self.coords.y+=self.vel.y;
-    for(Tile& t:this->tiles){
-        t.update(0, y_shift);
-    }
-
-    for(Tile t:this->tiles){ //player-tile collisions
-        if(colliding(t.surface, self.surface, t.coords, self.coords)){
-            float relVel = self.vel.y-t.vel.y;
-
-            if(relVel<0){
-                self.pos.y = t.pos.y + tileSize.y;
-                self.coords.y = t.coords.y + tileSize.y;
-                self.vel.y=0;
-            }
-            else if(relVel>0){
-                self.pos.y = t.pos.y - self.surface.getSize().y;
-                self.coords.y = t.coords.y - self.surface.getSize().y;
-                self.vel.y=0;
-                self.on_ground=true;
-            }
-        }
-    } 
-
-}
-
-void Level::applyLocalInput(vector<bool> &this_move, int camFlag){
-    self.prev_x_vel=self.vel.x;
-    if(this_move[1]==1){
-        self.acc.x=-self.runacc;
-    }
-    else if(this_move[3]==1){
-        self.acc.x=self.runacc;
-    }
-    else{
-        self.acc.x=0;
-        self.vel.x*=0.9;
-        if(abs(self.vel.x)<0.1){
-            self.vel.x=0;
+    else {
+        self.acc.x = 0;
+        self.vel.x *= 0.9;
+        if(abs(self.vel.x) < 0.1) {
+            self.vel.x = 0;
         }
     }
 
-    if(this_move[4]==1){
-        if(self.on_ground){
-            self.vel.y-=15;
-            self.on_ground=false;
+    if(this_move[4] == 1) {
+        if(self.on_ground) {
+            self.vel.y -= 15;
+            self.on_ground = false;
         }
     }
-    if(camFlag==1){
-        // scroll_x();
-    }
+
     x_collisions();
-    if(camFlag==1){
-        // scroll_y();
-    }
     y_collisions();
+    
     self.surface.setPosition(self.coords);
-    if(self.vel.x<0){
-        self.facing_right=false;
+    
+    if(self.vel.x < 0) {
+        self.facing_right = false;
     }
-    else if(self.vel.x>0){
-        self.facing_right=true;
+    else if(self.vel.x > 0) {
+        self.facing_right = true;
     }
 
-    // cout<<self.coords.x<<" "<<self.coords.y<<endl;
+    if(camFlag == 1) {
+        updateCamera();
+    }
 }
         
 void Level::processPendingUpdates(){
@@ -371,13 +288,9 @@ void Level::updatePlayer(){
         if (ec) {
             cerr << "Send failed: " << ec.message() << endl;
         }
-
-
-        
     
     applyLocalInput(newMove.thisMove, 1);
 
-    
 }
 
 
@@ -409,28 +322,35 @@ void Level::InterpolateEntity(Player *player){
 
 }
 
-void Level::render(){
+void Level::render() {
     display_surface->clear();
+    
+    // Set the view
+    display_surface->setView(gameView);
+    
+    // Draw all game objects
     display_surface->draw(self.surface);
-    for(auto others: other_players){
+    for(auto others : other_players) {
         display_surface->draw(others->surface);
     }
-
-    for(auto tile:tiles){
+    for(auto tile : tiles) {
         display_surface->draw(tile.surface);
     }
+    
     display_surface->display();
-}
+} 
 
 void Level::run(){
     processPendingUpdates();
     updatePlayer();
     for(auto player : other_players){
 
-        // InterpolateEntity(player);
-        player->moveCam(x_shift, y_shift);
+        InterpolateEntity(player);
+        // player->moveCam(x_shift, y_shift);
 
     }
     render();
 }
+
+
 
