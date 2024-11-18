@@ -1,9 +1,6 @@
 import Game.ClientMessage;
-import Game.GameMessage;
-import Game.ServerMessage;
 import java.io.IOException;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -75,6 +72,7 @@ public class Server {
         playerList.add(newPlayer);
         DatagramPacket playerIDPacket = SendServerMessage.makeServerMessage(0, newPlayer.getPlayerId());
         try {
+            udpSocket.send(playerIDPacket);
             udpSocket.send(playerIDPacket);
             playerIDPacket.setAddress(newPlayer.getAddress().getAddress());
             //dummy commment to test git
