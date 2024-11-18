@@ -105,9 +105,15 @@ public class Player {
     public synchronized Vec2 getCoordinates() {
         return coordinates;
     }
+    public synchronized Vec2 getVelocity() {
+        return vel;
+    }
 
     public synchronized void setCoordinates(Vec2 coordinates) {
         this.coordinates = coordinates;
+    }
+    public synchronized void setVel(Vec2 vel) {
+        this.vel = vel;
     }
 
     public synchronized int getPlayerId() {

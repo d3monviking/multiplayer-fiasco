@@ -222,7 +222,7 @@ public class Calculate implements Runnable {
 
                             // Adjust the player's position to resolve collision
                             float[] adjustedPosition = adjustToCollision(newX, newY, WIDTH, HEIGHT,
-                                                                         objectX, objectY, WIDTH, HEIGHT);
+                                                                         objectX, objectY, WIDTH, HEIGHT,player);
                             newX = adjustedPosition[0];
                             newY = adjustedPosition[1];
 
@@ -258,57 +258,114 @@ public class Calculate implements Runnable {
     }
 
     // Adjust position to resolve collision using Minimum Translation Vector (MTV)
+    // private float[] adjustToCollision(float x1, float y1, float width1, float height1,
+    //                                   float x2, float y2, float width2, float height2) {
+    //     System.out.println("Entered adjust collision");
+
+    //     // Compute the centers of the bounding boxes
+    //     float centerX1 = x1 + width1 / 2.0f;
+    //     float centerY1 = y1 + height1 / 2.0f;
+    //     float centerX2 = x2 + width2 / 2.0f;
+    //     float centerY2 = y2 + height2 / 2.0f;
+
+    //     // Compute delta between centers
+    //     float deltaX = centerX1 - centerX2;
+    //     float deltaY = centerY1 - centerY2;
+
+    //     // Compute overlap on x and y axes
+    //     float overlapX = (width1 / 2.0f + width2 / 2.0f) - Math.abs(deltaX);
+    //     float overlapY = (height1 / 2.0f + height2 / 2.0f) - Math.abs(deltaY);
+
+    //     // Initialize new position
+    //     float newX = x1;
+    //     float newY = y1;
+
+    //     if (overlapX > 0 && overlapY > 0) {
+    //         // Collision detected, resolve it by moving along the axis of minimal penetration
+    //         if (overlapX < overlapY) {
+    //             // Resolve along x axis
+    //             if (deltaX > 0) {
+    //                 // Move player to the right
+                    
+    //                 newX +=(overlapX+50);
+    //                 System.out.println("Adjusting position along X axis to the right by " + overlapX);
+    //             } else {
+    //                 // Move player to the left
+    //                 newX -= (overlapX+50);
+    //                 System.out.println("Adjusting position along X axis to the left by " + overlapX);
+    //             }
+    //         } else {
+    //             // Resolve along y axis
+    //             if (deltaY > 0) {
+    //                 // Move player down
+    //                 newY += (overlapY+100);
+    //                 System.out.println("Adjusting position along Y axis down by " + overlapY);
+    //             } else {
+    //                 // Move player up
+    //                 newY -= (overlapY+100);
+    //                 System.out.println("Adjusting position along Y axis up by " + overlapY);
+    //             }
+    //         }
+    //     }
+
+    //     return new float[] { newX, newY };
+    // }
     private float[] adjustToCollision(float x1, float y1, float width1, float height1,
-                                      float x2, float y2, float width2, float height2) {
-        System.out.println("Entered adjust collision");
+                                  float x2, float y2, float width2, float height2, Player player) {
+    System.out.println("Entered adjust collision");
 
-        // Compute the centers of the bounding boxes
-        float centerX1 = x1 + width1 / 2.0f;
-        float centerY1 = y1 + height1 / 2.0f;
-        float centerX2 = x2 + width2 / 2.0f;
-        float centerY2 = y2 + height2 / 2.0f;
+    // Compute the centers of the bounding boxes
+    float centerX1 = x1 + width1 / 2.0f;
+    float centerY1 = y1 + height1 / 2.0f;
+    float centerX2 = x2 + width2 / 2.0f;
+    float centerY2 = y2 + height2 / 2.0f;
 
-        // Compute delta between centers
-        float deltaX = centerX1 - centerX2;
-        float deltaY = centerY1 - centerY2;
+    // Compute delta between centers
+    float deltaX = centerX1 - centerX2;
+    float deltaY = centerY1 - centerY2;
 
-        // Compute overlap on x and y axes
-        float overlapX = (width1 / 2.0f + width2 / 2.0f) - Math.abs(deltaX);
-        float overlapY = (height1 / 2.0f + height2 / 2.0f) - Math.abs(deltaY);
+    // Compute overlap on x and y axes
+    float overlapX = (width1 / 2.0f + width2 / 2.0f) - Math.abs(deltaX);
+    float overlapY = (height1 / 2.0f + height2 / 2.0f) - Math.abs(deltaY);
 
-        // Initialize new position
-        float newX = x1;
-        float newY = y1;
+    // Initialize new position
+    float newX = x1;
+    float newY = y1;
 
-        if (overlapX > 0 && overlapY > 0) {
-            // Collision detected, resolve it by moving along the axis of minimal penetration
-            if (overlapX < overlapY) {
-                // Resolve along x axis
-                if (deltaX > 0) {
-                    // Move player to the right
-                    newX +=(overlapX+50);
-                    System.out.println("Adjusting position along X axis to the right by " + overlapX);
-                } else {
-                    // Move player to the left
-                    newX -= (overlapX+50);
-                    System.out.println("Adjusting position along X axis to the left by " + overlapX);
-                }
+    if (overlapX > 0 && overlapY > 0) {
+        // Collision detected, resolve it by moving along the axis of minimal penetration
+        if (overlapX < overlapY) {
+            // Resolve along x-axis
+            if (deltaX > 0) {
+                // Move player to the right
+                newX += (overlapX);
+                System.out.println("Adjusting position along X axis to the right by " + overlapX);
             } else {
-                // Resolve along y axis
-                if (deltaY > 0) {
-                    // Move player down
-                    newY += (overlapY+100);
-                    System.out.println("Adjusting position along Y axis down by " + overlapY);
-                } else {
-                    // Move player up
-                    newY -= (overlapY+100);
-                    System.out.println("Adjusting position along Y axis up by " + overlapY);
-                }
+                // Move player to the left
+                newX -= (overlapX);
+                System.out.println("Adjusting position along X axis to the left by " + overlapX);
+            }
+        } else {
+            // Resolve along y-axis
+            if (deltaY > 0) {
+                // Move player down
+                newY += (overlapY);
+                System.out.println("Adjusting position along Y axis down by " + overlapY);
+            } else {
+                // Move player up (bouncing)
+                newY -= (overlapY);
+                System.out.println("Adjusting position along Y axis up by " + overlapY);
+
+                // Apply bounce effect by setting velocity to -15
+                System.out.println("Bouncing upwards, reducing Y velocity to -15.");
+                player.getVelocity().y = -15; // Update the velocity for rebound effect
             }
         }
-
-        return new float[] { newX, newY };
     }
+
+    return new float[] { newX, newY };
+}
+
 
     // Helper method to find player by ID
     private Player findPlayer(int playerId) {
