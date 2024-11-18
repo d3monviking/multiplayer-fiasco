@@ -55,7 +55,7 @@ public class Server {
 
         // Start calculate thread
         new Thread(new Calculate(messageQueue)).start();
-        new Thread(new SendServerMessage(100)).start();
+        new Thread(new SendServerMessage(50)).start();
         // Placeholder for the Send thread (if you need it)
         // new Thread(new Send()).start();
     }
