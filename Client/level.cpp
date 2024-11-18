@@ -85,7 +85,7 @@ void Level::x_collisions() {
 
     for(Tile t : tiles) {
         if(colliding(t.surface, self.surface, t.coords, self.coords)) {
-            float relVel = self.vel.x - t.vel.x;
+            float relVel = self.vel.x;
             
             if(relVel < 0) {
                 self.coords.x = t.coords.x + tileSize.x;
@@ -99,6 +99,32 @@ void Level::x_collisions() {
             }
         }
     }
+
+    for(int i=0;i<other_players.size();i++){
+        if(self_id-1==i){
+            continue;
+        }
+        
+        Player* p = other_players[i];
+        cout<<"other:"<<p->coords.x<<" "<<p->coords.y<<endl;
+        // float other_x = interpolation_buffer[i][interpolation_buffer[i].size()-1].pos.x;
+        // float other_y = interpolation_buffer[i][interpolation_buffer[i].size()-1].pos.y;
+
+        if(colliding(p->surface, self.surface, p->coords, self.coords)){
+            cout<<"colliding"<<endl;
+            if(self.vel.x<0){
+                self.coords.x = p->coords.x + p->surface.getSize().x;
+                self.vel.x=0;
+            }
+            else if(self.vel.x>0){
+                self.coords.x = p->coords.x - self.surface.getSize().x;
+                self.vel.x=0;
+            }
+        }
+        
+    }
+
+    
 }
 
 void Level::y_collisions() {
@@ -109,7 +135,7 @@ void Level::y_collisions() {
 
     for(Tile t : tiles) {
         if(colliding(t.surface, self.surface, t.coords, self.coords)) {
-            float relVel = self.vel.y - t.vel.y;
+            float relVel = self.vel.y;
 
             if(relVel < 0) {
                 self.coords.y = t.coords.y + tileSize.y;
@@ -123,6 +149,30 @@ void Level::y_collisions() {
                 self.on_ground = true;
             }
         }
+    }
+
+    for(int i=0;i<other_players.size();i++){
+        if(self_id-1==i){
+            continue;
+        }
+        
+        Player* p = other_players[i];
+        // float other_x = interpolation_buffer[i][interpolation_buffer[i].size()-1].pos.x;
+        // float other_y = interpolation_buffer[i][interpolation_buffer[i].size()-1].pos.y;
+        // cout<<"other:"<<other_x<<" "<<other_y<<endl;
+
+        if(colliding(p->surface, self.surface, p->coords, self.coords)){
+            if(self.vel.y<0){
+                self.coords.y = p->coords.y + p->surface.getSize().y;
+                self.vel.y=0;
+            }
+            else if(self.vel.y>0){
+                self.coords.y = p->coords.y - self.surface.getSize().y;
+                self.vel.y=-15;
+                // cout<<"colliding"<<endl;
+            }
+        }
+        
     }
 }
 
@@ -183,7 +233,10 @@ void Level::applyLocalInput(vector<bool> &this_move, int camFlag) {
 
     if(camFlag == 1) {
         updateCamera();
+
     }
+
+    cout<<self.coords.x<<" "<<self.coords.y<<endl;
 }
         
 void Level::processPendingUpdates(){
@@ -251,7 +304,7 @@ void Level::updatePlayer(){
 
     // Creating FlatBuffer variables to store and transmit data
 
-        cout<<"apt"<<self.pos.x<<endl;
+        // cout<<"apt"<<self.pos.x<<endl;
         newMove.seq_num=count++;
         newMove.pos.y=self.pos.y;
         newMove.pos.x=self.pos.x;
@@ -297,7 +350,7 @@ void Level::updatePlayer(){
 void Level::InterpolateEntity(Player *player){
 
     long long current_time=setCurrentTimestamp();
-    long long rqd_time=current_time-100;
+    long long rqd_time=current_time-50;
     int player_id=player->get_id() - 1;
     auto i=interpolation_buffer[player_id].begin();
     auto j=interpolation_buffer[player_id].begin();
@@ -310,12 +363,16 @@ void Level::InterpolateEntity(Player *player){
         x=i->pos.x;
         y=i->pos.y;
         player->setPos(x,y);
+        player->coords.x=x;
+        player->coords.y=y;
         return;
     }
     //interpolation logic
     if(i<interpolation_buffer[player_id].end() && j<interpolation_buffer[player_id].end()){
         x=i->pos.x+(((j->pos.x-i->pos.x)/(j->timestamp-i->timestamp))*(rqd_time-i->timestamp));
         y=i->pos.y+(((j->pos.y-i->pos.y)/(j->timestamp-i->timestamp))*(rqd_time-i->timestamp));
+        player->coords.x=x;
+        player->coords.y=y;
         player->setPos(x,y);
 
     }
