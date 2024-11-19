@@ -1,162 +1,3 @@
-// import Game.ClientMessage;
-// import java.util.concurrent.BlockingQueue;
-
-// public class Calculate implements Runnable {
-//     private BlockingQueue<ClientMessage> messageQueue;
-//     private int mvnum = 0;
-
-//     // Define width and height constants for players
-//     private static final float WIDTH = 50.0f; // Example width
-//     private static final float HEIGHT = 50.0f; // Example height
-
-//     public Calculate(BlockingQueue<ClientMessage> messageQueue) {
-//         this.messageQueue = messageQueue;
-//     }
-
-//     Level level; // Create an instance of the Level class
-
-//     @Override
-//     public void run() {
-//         try {
-//             level = new Level();
-//             while (true) {
-//                 // Get the next client message from the queue
-//                 ClientMessage clientMessage = messageQueue.take();
-
-//                 // Find the corresponding player
-//                 Player player = findPlayer(clientMessage.selfData().playerId());
-//                 if (player != null) {
-//                     // Get inputs to determine movement direction
-//                     boolean[] inputs = getInputsFromClientMessage(clientMessage);
-//                     System.out.println("Processing Player ID: " + player.getPlayerId());
-//                     System.out.println("Player inputs: " + inputs[0] + ", " + inputs[1] + ", " + inputs[2] + ", " + inputs[3]);
-//                     float currx = player.getCoordinates().getX();
-//                     float curry = player.getCoordinates().getY();
-//                     System.out.println("Player current position: x=" + currx + ", y=" + curry);
-//                     // Apply level input logic for tile collision
-//                     level.applyInput(player, inputs);//updates the new position of the player by applying inputs
-
-//                     // Get the player's current position
-                   
-//                     float newX = player.getCoordinates().getX();
-//                     float newY = player.getCoordinates().getY();
-//                     System.out.println("Player after input applied position: x=" + newX + ", y=" + newY);
-
-//                     // Debug player's new position
-                    
-
-//                     // Check for collision with other players
-//                     for (Player otherPlayer : Server.getPlayerList()) {
-//                         // Skip checking collision with itself
-//                         if (otherPlayer.getPlayerId() == player.getPlayerId()) continue;
-
-//                         System.out.println("Checking collision with Player ID: " + otherPlayer.getPlayerId());
-
-//                         // Get other player's position
-//                         float objectX = otherPlayer.getCoordinates().getX();
-//                         float objectY = otherPlayer.getCoordinates().getY();
-
-//                         // Debug other player's position
-//                         System.out.println("Other Player position: x=" + objectX + ", y=" + objectY);
-
-//                         // Check for collision
-//                         if (checkCollision(newX, newY, WIDTH, HEIGHT, objectX, objectY, WIDTH, HEIGHT)) {
-//                             System.out.println("Collision detected with Player ID: " + otherPlayer.getPlayerId());
-
-//                             // Adjust the player's position
-//                             newX = adjustToCollision(newX,currx, WIDTH, objectX, WIDTH, inputs[1], inputs[3]);
-//                             newY = adjustToCollision(newY, curry, HEIGHT, objectY, HEIGHT, inputs[0], inputs[2]);
-
-//                             System.out.println("Adjusted position: x=" + newX + ", y=" + newY);
-//                         }
-//                     }
-
-//                     // Update player coordinates
-//                     player.setCoordinates(new Vec2(newX, newY));
-
-//                     // Log final coordinates
-//                     System.out.println("Final position: x=" + player.getCoordinates().getX() +
-//                                        ", y=" + player.getCoordinates().getY());
-
-//                     // Update player state
-//                     player.setLastProcessedSeqNum(clientMessage.sequenceNumber());
-//                     player.setTimestamp(clientMessage.selfData().timestamp());
-//                 }
-//             }
-//         } catch (Exception e) {
-//             e.printStackTrace();
-//         }
-//     }
-
-//     // AABB collision detection method
-//     private boolean checkCollision(float x1, float y1, float width1, float height1, float x2, float y2, float width2, float height2) {
-//         System.out.println("Entered collision check");
-//         boolean collision = (x1 < x2 + width2 && x1 + width1 > x2 &&
-//                              y1 < y2 + height2 && y1 + height1 > y2);
-//         System.out.println("Collision result: " + collision);
-//         return collision;
-//     }
-
-//     private float adjustToCollision(float newCoord, float currentCoord, float size, float objectCoord, float objectSize, boolean isNegative, boolean isPositive) {
-//         System.out.println("Entered adjust check");
-//         System.out.println("object coord=" + objectCoord + " currentcoord=" + currentCoord + " newcoord=" + newCoord);
-    
-//         // Negative direction (e.g., moving left)
-//         if (isNegative && newCoord < objectCoord + objectSize && currentCoord >= objectCoord + objectSize) {
-//             System.out.println("Adjusting for collision (negative direction): " + (objectCoord + objectSize));
-//             return objectCoord + objectSize+50; // Push out to the right edge of the other object
- 
-//         }
-    
-//         // Positive direction (e.g., moving right)
-//         if (isPositive && newCoord + size > objectCoord && currentCoord + size <= objectCoord) {
-//             System.out.println("Adjusting for collision (positive direction): " + (objectCoord - size));
-//             return objectCoord - size-50; // Push out to the left edge of the other object
-//         }
-    
-//         // No adjustment needed
-//         return newCoord;
-//     }
-//     // private float adjustToCollision(float newCoord, float currentCoord, float size, float objectCoord, float objectSize, boolean isNegative, boolean isPositive) {
-//     //     System.out.println("Entered adjust check");
-//     //     System.out.println("object coord=" + objectCoord + " currentcoord=" + currentCoord + " newcoord=" + newCoord);
-    
-//     //     // Negative direction (e.g., moving left)
-//     //     if (isNegative || (!isPositive && newCoord < objectCoord + objectSize)) {
-//     //         System.out.println("Adjusting for collision (negative direction): " + (objectCoord + objectSize));
-//     //         return objectCoord + objectSize+50;
-//     //     }
-    
-//     //     // Positive direction (e.g., moving right)
-//     //     if (isPositive || (!isNegative && newCoord + size > objectCoord)) {
-//     //         System.out.println("Adjusting for collision (positive direction): " + (objectCoord - size));
-//     //         return objectCoord - size-50;
-//     //     }
-    
-//     //     // No adjustment needed
-//     //     return newCoord;
-//     // }
-    
-
-//     // Helper method to find player by ID
-//     private Player findPlayer(int playerId) {
-//         for (Player player : Server.getPlayerList()) {
-//             if (player.getPlayerId() == playerId) {
-//                 return player;
-//             }
-//         }
-//         return null;
-//     }
-
-//     // Method to extract boolean array from ClientMessage
-//     private boolean[] getInputsFromClientMessage(ClientMessage clientMessage) {
-//         boolean[] inputs = new boolean[clientMessage.playerInputLength()];
-//         for (int i = 0; i < inputs.length; i++) {
-//             inputs[i] = clientMessage.playerInput(i);
-//         }
-//         return inputs;
-//     }
-// }
 
 import Game.ClientMessage;
 import java.util.concurrent.BlockingQueue;
@@ -187,12 +28,12 @@ public class Calculate implements Runnable {
                 if (player != null) {
                     // Get inputs to determine movement direction
                     boolean[] inputs = getInputsFromClientMessage(clientMessage);
-                    System.out.println("Processing Player ID: " + player.getPlayerId());
+                    // System.out.println("Processing Player ID: " + player.getPlayerId());
                     System.out.println("Player inputs: " + inputs[0] + ", " + inputs[1] + ", " + inputs[2] + ", " + inputs[3]);
 
                     float currX = player.getCoordinates().getX();
                     float currY = player.getCoordinates().getY();
-                    System.out.println("Player current position: x=" + currX + ", y=" + currY);
+                    // System.out.println("Player current position: x=" + currX + ", y=" + currY);
 
                     // Apply level input logic for tile collision
                     level.applyInput(player, inputs); // Updates the new position of the player by applying inputs
@@ -207,18 +48,18 @@ public class Calculate implements Runnable {
                         // Skip checking collision with itself
                         if (otherPlayer.getPlayerId() == player.getPlayerId()) continue;
 
-                        System.out.println("Checking collision with Player ID: " + otherPlayer.getPlayerId());
+                        // System.out.println("Checking collision with Player ID: " + otherPlayer.getPlayerId());
 
                         // Get other player's position
                         float objectX = otherPlayer.getCoordinates().getX();
                         float objectY = otherPlayer.getCoordinates().getY();
 
                         // Debug other player's position
-                        System.out.println("Other Player position: x=" + objectX + ", y=" + objectY);
+                        // System.out.println("Other Player position: x=" + objectX + ", y=" + objectY);
 
                         // Check for collision
                         if (checkCollision(newX, newY, WIDTH, HEIGHT, objectX, objectY, WIDTH, HEIGHT)) {
-                            System.out.println("Collision detected with Player ID: " + otherPlayer.getPlayerId());
+                            // System.out.println("Collision detected with Player ID: " + otherPlayer.getPlayerId());
 
                             // Adjust the player's position to resolve collision
                             float[] adjustedPosition = adjustToCollision(newX, newY, WIDTH, HEIGHT,
@@ -226,7 +67,7 @@ public class Calculate implements Runnable {
                             newX = adjustedPosition[0];
                             newY = adjustedPosition[1];
 
-                            System.out.println("Adjusted position: x=" + newX + ", y=" + newY);
+                            // System.out.println("Adjusted position: x=" + newX + ", y=" + newY);
                         }
                     }
 
@@ -234,8 +75,7 @@ public class Calculate implements Runnable {
                     player.setCoordinates(new Vec2(newX, newY));
 
                     // Log final coordinates
-                    System.out.println("Final position: x=" + player.getCoordinates().getX() +
-                                       ", y=" + player.getCoordinates().getY());
+                    // System.out.println("Final position: x=" + player.getCoordinates().getX() +", y=" + player.getCoordinates().getY());
 
                     // Update player state
                     player.setLastProcessedSeqNum(clientMessage.sequenceNumber());
@@ -250,10 +90,10 @@ public class Calculate implements Runnable {
     // AABB collision detection method
     private boolean checkCollision(float x1, float y1, float width1, float height1,
                                    float x2, float y2, float width2, float height2) {
-        System.out.println("Entered collision check");
+        // System.out.println("Entered collision check");
         boolean collision = (x1 < x2 + width2 && x1 + width1 > x2 &&
                              y1 < y2 + height2 && y1 + height1 > y2);
-        System.out.println("Collision result: " + collision);
+        // System.out.println("Collision result: " + collision);
         return collision;
     }
 
@@ -339,25 +179,25 @@ public class Calculate implements Runnable {
             if (deltaX > 0) {
                 // Move player to the right
                 newX += (overlapX);
-                System.out.println("Adjusting position along X axis to the right by " + overlapX);
+                // System.out.println("Adjusting position along X axis to the right by " + overlapX);
             } else {
                 // Move player to the left
                 newX -= (overlapX);
-                System.out.println("Adjusting position along X axis to the left by " + overlapX);
+                // System.out.println("Adjusting position along X axis to the left by " + overlapX);
             }
         } else {
             // Resolve along y-axis
             if (deltaY > 0) {
                 // Move player down
                 newY += (overlapY);
-                System.out.println("Adjusting position along Y axis down by " + overlapY);
+                // System.out.println("Adjusting position along Y axis down by " + overlapY);
             } else {
                 // Move player up (bouncing)
                 newY -= (overlapY);
-                System.out.println("Adjusting position along Y axis up by " + overlapY);
+                // System.out.println("Adjusting position along Y axis up by " + overlapY);
 
                 // Apply bounce effect by setting velocity to -15
-                System.out.println("Bouncing upwards, reducing Y velocity to -15.");
+                // System.out.println("Bouncing upwards, reducing Y velocity to -15.");
                 player.getVelocity().y = -15; // Update the velocity for rebound effect
             }
         }
