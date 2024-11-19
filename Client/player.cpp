@@ -47,5 +47,6 @@ void Player::moveCam(float x_shift, float y_shift){
 void Player::setCoords(float x, float y){
     this->coords.x=x;
     this->coords.y=y;
+    this->surface.setPosition(x, y);
 }
 

@@ -101,17 +101,18 @@ void Level::x_collisions() {
     }
 
     for(int i=0;i<other_players.size();i++){
-        if(self_id-1==i){
-            continue;
-        }
+        // cout<<"selfid:"<<self_id<<endl;
+        // if(self_id-1==i){
+        //     continue;
+        // }
         
         Player* p = other_players[i];
-        cout<<"other:"<<p->coords.x<<" "<<p->coords.y<<endl;
+        // cout<<"other:"<<p->coords.x<<" "<<p->coords.y<<endl;
         // float other_x = interpolation_buffer[i][interpolation_buffer[i].size()-1].pos.x;
         // float other_y = interpolation_buffer[i][interpolation_buffer[i].size()-1].pos.y;
 
         if(colliding(p->surface, self.surface, p->coords, self.coords)){
-            cout<<"colliding"<<endl;
+            // cout<<"colliding"<<endl;
             if(self.vel.x<0){
                 self.coords.x = p->coords.x + p->surface.getSize().x;
                 self.vel.x=0;
@@ -152,9 +153,9 @@ void Level::y_collisions() {
     }
 
     for(int i=0;i<other_players.size();i++){
-        if(self_id-1==i){
-            continue;
-        }
+        // if(self_id-1==i){
+        //     continue;
+        // }
         
         Player* p = other_players[i];
         // float other_x = interpolation_buffer[i][interpolation_buffer[i].size()-1].pos.x;
@@ -236,14 +237,14 @@ void Level::applyLocalInput(vector<bool> &this_move, int camFlag) {
 
     }
 
-    cout<<self.coords.x<<" "<<self.coords.y<<endl;
+    // cout<<self.coords.x<<" "<<self.coords.y<<endl;
 }
         
 void Level::processPendingUpdates(){
     if(updates_buffer.size()>0){ //apply latest pending update one by one
         auto player_state = updates_buffer[updates_buffer.size()-1];
-        cout<<"seqnum:"<<player_state.last_processed_seq_num<<" "<<player_state.pos.x<<" "<<player_state.pos.y<<endl;
-        cout<<self.pos.x<<" "<<self.pos.y<<" "<<self.coords.x<<" "<<self.coords.y<<endl;
+        // cout<<"seqnum:"<<player_state.last_processed_seq_num<<" "<<player_state.pos.x<<" "<<player_state.pos.y<<endl;
+        // cout<<self.pos.x<<" "<<self.pos.y<<" "<<self.coords.x<<" "<<self.coords.y<<endl;
         self.coords.x = player_state.pos.x; //set pos to last acked state and replay all inputs from that point to the present
         self.coords.y = player_state.pos.y;
         self.vel.x=player_state.vel.x;
@@ -348,37 +349,47 @@ void Level::updatePlayer(){
 
 
 void Level::InterpolateEntity(Player *player){
-
     long long current_time=setCurrentTimestamp();
-    long long rqd_time=current_time-50;
+    long long rqd_time=current_time-100;
     int player_id=player->get_id() - 1;
     auto i=interpolation_buffer[player_id].begin();
-    auto j=interpolation_buffer[player_id].begin();
     float x,y;
+    // cout << "arjit " << interpolation_buffer[player_id].size() << endl;
     while(((i+1)<interpolation_buffer[player_id].end()) && (i+1)->timestamp<rqd_time) i++;
-    
-    while(j<interpolation_buffer[player_id].end() && j->timestamp<rqd_time) j++;
+
+    //Dropping older positions
+
+    long long temp=i->timestamp;
+    auto p=interpolation_buffer[player_id].begin();
+    while(p!=interpolation_buffer[player_id].end() && p->timestamp<temp){
+        p=interpolation_buffer[player_id].erase(p);
+    }
+    i=interpolation_buffer[player_id].begin();
+    auto j=interpolation_buffer[player_id].begin();
+    while(j<interpolation_buffer[player_id].end() && j->timestamp<=temp) j++;
+    // if(i==interpolation_buffer[player_id].begin()) cout<<"yay"<<endl;
+
     //if no need for interpolation
+
+    // cout<<"using:"<<j->pos.y<<" "<<i->pos.y<<endl;;
+    // for(int k=0;k<interpolation_buffer[player_id].size();k++){
+    //     cout<<interpolation_buffer[player_id][k].pos.y<<":"<<interpolation_buffer[player_id][k].timestamp<<" ";
+    // }
+    // cout<<endl;
     if((i+1)<interpolation_buffer[player_id].end() && i->timestamp==rqd_time){
         x=i->pos.x;
         y=i->pos.y;
-        player->setPos(x,y);
-        player->coords.x=x;
-        player->coords.y=y;
+        player->setCoords(x,y);
         return;
     }
     //interpolation logic
     if(i<interpolation_buffer[player_id].end() && j<interpolation_buffer[player_id].end()){
         x=i->pos.x+(((j->pos.x-i->pos.x)/(j->timestamp-i->timestamp))*(rqd_time-i->timestamp));
         y=i->pos.y+(((j->pos.y-i->pos.y)/(j->timestamp-i->timestamp))*(rqd_time-i->timestamp));
-        player->coords.x=x;
-        player->coords.y=y;
-        player->setPos(x,y);
-
+        player->setCoords(x,y);
+        // cout<<"other:"<<x<<" "<<y<<endl;
     }
-
 }
-
 void Level::render() {
     display_surface->clear();
     

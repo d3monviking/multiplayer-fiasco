@@ -5,7 +5,7 @@ using namespace std;
 using boost::asio::ip::udp;
 boost::asio::io_context io_context;
 udp::socket clientSocket(io_context);
-udp::endpoint serverEndpoint(boost::asio::ip::make_address("172.20.10.2"), 8888);
+udp::endpoint serverEndpoint(boost::asio::ip::make_address("192.168.215.245"), 8888);
 
 int screen_width=1920;
 int screen_height=1080;
@@ -122,6 +122,7 @@ void receiveFromSender(){
 
                     // Convert duration to milliseconds
                     long long milliseconds= chrono::duration_cast<chrono::milliseconds>(duration).count();
+                    // cout<<"interpolate:"<<milliseconds<<" "<<data.pos.y<<endl;
                     data.timestamp = milliseconds;
                     interpolation_buffer[player_state->player_id()-1].push_back(data);
                 }
