@@ -7,8 +7,8 @@ class Player{
         sf::Vector2f vel = sf::Vector2f(0,0);
         sf::Vector2f acc=sf::Vector2f(0,0);
         float speed = 2.0f;
-        float runacc=2;
-        float maxspeed=8;
+        float runacc=4;
+        float maxspeed=12;
         bool on_ground=true;
         bool facing_right=true;
         float prev_x_vel=0;

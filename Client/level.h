@@ -17,7 +17,7 @@ class Level{
         float x_shift=0;
         float y_shift=0;
         std::vector<Tile> tiles;
-        float gravity = 0.7;
+        float gravity = 1.4;
         float right_calibration;
         float left_calibration=0;
         int level_width;

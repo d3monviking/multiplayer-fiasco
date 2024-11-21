@@ -5,10 +5,10 @@ using namespace std;
 using boost::asio::ip::udp;
 boost::asio::io_context io_context;
 udp::socket clientSocket(io_context);
-udp::endpoint serverEndpoint(boost::asio::ip::make_address("192.168.215.245"), 8888);
+udp::endpoint serverEndpoint(boost::asio::ip::make_address("172.20.10.3"), 8888);
 
-int screen_width=1920;
-int screen_height=1080;
+int screen_width=600;
+int screen_height=600;
 sf::RenderWindow window(sf::VideoMode(screen_width, screen_height), "SFML works!");
 
 auto window_ptr =  &window;
@@ -147,7 +147,7 @@ void receiveFromSender(){
 int main(){
     // cout<<"bruh"<<endl;
     window.setPosition(sf::Vector2i(10, 50));
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(30);
 
     clientSocket.open(udp::v4());
     clientSocket.bind(udp::endpoint(udp::v4(), 8887)); 

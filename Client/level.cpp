@@ -215,7 +215,7 @@ void Level::applyLocalInput(vector<bool> &this_move, int camFlag) {
 
     if(this_move[4] == 1) {
         if(self.on_ground) {
-            self.vel.y -= 15;
+            self.vel.y -= 25;
             self.on_ground = false;
         }
     }
@@ -247,6 +247,13 @@ void Level::processPendingUpdates(){
         // cout<<self.pos.x<<" "<<self.pos.y<<" "<<self.coords.x<<" "<<self.coords.y<<endl;
         self.coords.x = player_state.pos.x; //set pos to last acked state and replay all inputs from that point to the present
         self.coords.y = player_state.pos.y;
+        // if(player_state.pos.x != movemap[player_state.last_processed_seq_num].x || player_state.pos.y != movemap[player_state.last_processed_seq_num].y){
+        //     cout<<"mismatch"<<endl;
+        //     cout << player_state.last_processed_seq_num << endl;
+        //     cout << "pos x: " << player_state.pos.x << " pos y: " << player_state.pos.y << endl;
+        //     cout << "movemap x: " << movemap[player_state.last_processed_seq_num].x << " movemap y: " << movemap[player_state.last_processed_seq_num].y << endl;
+        //     cout << "-------------------------" << endl;
+        // }
         self.vel.x=player_state.vel.x;
         self.vel.y=player_state.vel.y;
         if(player_state.last_processed_seq_num!=-1){
@@ -310,7 +317,6 @@ void Level::updatePlayer(){
         newMove.pos.y=self.pos.y;
         newMove.pos.x=self.pos.x;
         move_history.push_back(newMove);
-        movemap[count] = sf::Vector2f(self.pos.x, self.pos.y);
         // cout<<"storing:"<<self.pos.x<<endl;
 
         flatbuffers::FlatBufferBuilder builder(1024);
@@ -344,13 +350,16 @@ void Level::updatePlayer(){
         }
     
     applyLocalInput(newMove.thisMove, 1);
+        movemap[count] = sf::Vector2f(self.coords.x, self.coords.y);
+        cout << "seqnum:" << count-1 << " " << fixed << setprecision(self.coords.x == static_cast<int>(self.coords.x) ? 1 : 2) << self.coords.x << " y=" << setprecision(self.coords.y == static_cast<int>(self.coords.y) ? 1 : 2) << self.coords.y << endl;
+
 
 }
 
 
 void Level::InterpolateEntity(Player *player){
     long long current_time=setCurrentTimestamp();
-    long long rqd_time=current_time-100;
+    long long rqd_time=current_time-20;
     int player_id=player->get_id() - 1;
     auto i=interpolation_buffer[player_id].begin();
     float x,y;
@@ -409,13 +418,12 @@ void Level::render() {
 } 
 
 void Level::run(){
+    // updatePlayer();
     processPendingUpdates();
     updatePlayer();
     for(auto player : other_players){
-
         InterpolateEntity(player);
         // player->moveCam(x_shift, y_shift);
-
     }
     render();
 }
