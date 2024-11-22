@@ -6,8 +6,8 @@ class Tile{
         sf::Vector2f vel;
         sf::Vector2f acc;
     public:
-        sf::RectangleShape surface;
-        Tile(sf::Vector2f pos, sf::Vector2f tileSize);
+        sf::Sprite surface;
+        Tile(sf::Sprite sprite);
 
         void update(float x_shit, float y_shift);
 

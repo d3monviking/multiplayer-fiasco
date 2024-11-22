@@ -17,8 +17,8 @@ extern int screen_height;
 
 Level::Level(sf::RenderWindow* window, int screen_width) {
     display_surface = window;
-    level_height = level_map.size() * tileSize.y;
-    level_width = level_map[0].size() * tileSize.x;
+    level_height = MAX_ROWS * tileSize.y;
+    level_width = MAX_COLS * tileSize.x;
     
     // Create and configure the camera view
     gameView.reset(sf::FloatRect(0, 0, screen_width, screen_height));
@@ -27,15 +27,43 @@ Level::Level(sf::RenderWindow* window, int screen_width) {
 
 Level::Level() {}
 
-void Level::setup_level(int screen_width) {
-    for(int i = 0; i < level_map.size(); i++) {
-        for(int j = 0; j < level_map[0].size(); j++) {
-            int x = tileSize.x * j;
-            int y = tileSize.y * i;
-            if(level_map[i][j] == 'X') {
-                Tile t(sf::Vector2f(x,y), tileSize);
-                tiles.push_back(t);
+void Level::setup_level(string path) {
+    ifstream file(path);
+    if(!file.is_open()){
+        cerr << "Error opening file!\n";
+        return;
+    }
+    string line;
+    int row = 0;
+    while(getline(file, line) && row < MAX_ROWS){
+        stringstream ss(line);
+        string cell;
+        int col = 0;
+        while(getline(ss, cell, ',') && col < MAX_COLS){
+            level[row][col] = stoi(cell);
+            col++;
+        }
+        row++;
+    }
+    file.close();
+    if (!tileSheet.loadFromFile(tileSetPath)){
+        cerr << "Error loading the texture!\n";
+        return;
+    }
+    sf::Sprite s;
+    for(int i = 0; i < MAX_ROWS; i++) {
+        for(int j = 0; j < MAX_COLS; j++) {
+            s.setTexture(tileSheet);
+            int tileNumber = level[i][j];
+            if(tileNumber == -1){
+                continue;
             }
+            int tu = tileNumber % (tileSheet.getSize().x / tileSize.x);
+            int tv = tileNumber / (tileSheet.getSize().x / tileSize.x);
+            s.setTextureRect(sf::IntRect(tu * tileSize.x, tv * tileSize.y, 16, 16));
+            s.setPosition(sf::Vector2f(j * tileSize.x, i * tileSize.y));      
+            Tile newTile(s);      
+            tiles.push_back(newTile);
         }
     }
 }
@@ -56,6 +84,7 @@ void Level::updateCamera() {
     // Set target center based on player position plus offset
     sf::Vector2f targetCenter = self.coords;
     targetCenter.x += cameraOffsetX;
+    
 
     // Clamp the camera within the level boundaries
     float halfViewWidth = gameView.getSize().x / 2.f;
@@ -84,7 +113,7 @@ void Level::x_collisions() {
     self.pos.x = self.coords.x;  // Update screen position based on world coordinates
 
     for(Tile t : tiles) {
-        if(colliding(t.surface, self.surface, t.coords, self.coords)) {
+        if(colliding(t.surface, self.sprite, t.coords, self.coords)) {
             float relVel = self.vel.x;
             
             if(relVel < 0) {
@@ -93,7 +122,7 @@ void Level::x_collisions() {
                 self.vel.x = 0;
             }
             else if(relVel > 0) {
-                self.coords.x = t.coords.x - self.surface.getSize().x;
+                self.coords.x = t.coords.x - self.getDim().x;
                 self.pos.x = self.coords.x;
                 self.vel.x = 0;
             }
@@ -111,14 +140,14 @@ void Level::x_collisions() {
         // float other_x = interpolation_buffer[i][interpolation_buffer[i].size()-1].pos.x;
         // float other_y = interpolation_buffer[i][interpolation_buffer[i].size()-1].pos.y;
 
-        if(colliding(p->surface, self.surface, p->coords, self.coords)){
+        if(colliding(p->sprite, self.sprite, p->coords, self.coords)){
             // cout<<"colliding"<<endl;
             if(self.vel.x<0){
-                self.coords.x = p->coords.x + p->surface.getSize().x;
+                self.coords.x = p->coords.x + p->getDim().x;
                 self.vel.x=0;
             }
             else if(self.vel.x>0){
-                self.coords.x = p->coords.x - self.surface.getSize().x;
+                self.coords.x = p->coords.x - self.getDim().x;
                 self.vel.x=0;
             }
         }
@@ -135,7 +164,7 @@ void Level::y_collisions() {
     self.pos.y = self.coords.y;  // Update screen position based on world coordinates
 
     for(Tile t : tiles) {
-        if(colliding(t.surface, self.surface, t.coords, self.coords)) {
+        if(colliding(t.surface, self.sprite, t.coords, self.coords)) {
             float relVel = self.vel.y;
 
             if(relVel < 0) {
@@ -144,7 +173,7 @@ void Level::y_collisions() {
                 self.vel.y = 0;
             }
             else if(relVel > 0) {
-                self.coords.y = t.coords.y - self.surface.getSize().y;
+                self.coords.y = t.coords.y - self.getDim().y;
                 self.pos.y = self.coords.y;
                 self.vel.y = 0;
                 self.on_ground = true;
@@ -162,13 +191,13 @@ void Level::y_collisions() {
         // float other_y = interpolation_buffer[i][interpolation_buffer[i].size()-1].pos.y;
         // cout<<"other:"<<other_x<<" "<<other_y<<endl;
 
-        if(colliding(p->surface, self.surface, p->coords, self.coords)){
+        if(colliding(p->sprite, self.sprite, p->coords, self.coords)){
             if(self.vel.y<0){
-                self.coords.y = p->coords.y + p->surface.getSize().y;
+                self.coords.y = p->coords.y + p->getDim().y;
                 self.vel.y=0;
             }
             else if(self.vel.y>0){
-                self.coords.y = p->coords.y - self.surface.getSize().y;
+                self.coords.y = p->coords.y - self.getDim().y;
                 self.vel.y=-15;
                 // cout<<"colliding"<<endl;
             }
@@ -188,8 +217,14 @@ long long Level::setCurrentTimestamp() {
     return duration.count();  // This will give you the time in milliseconds
 }
 
-bool Level::colliding(sf::RectangleShape& rect1, sf::RectangleShape& rect2, sf::Vector2f coord1, sf::Vector2f coord2){
-    if((coord1.x+rect1.getSize().x>coord2.x) && (coord1.x<coord2.x+rect2.getSize().x) && (coord1.y+rect1.getSize().y>coord2.y) && (coord1.y<coord2.y+rect2.getSize().y)){
+bool Level::colliding(sf::Sprite& rect1, sf::Sprite& rect2, sf::Vector2f coord1, sf::Vector2f coord2){
+    // if(rect1.getGlobalBounds().intersects(rect2.getGlobalBounds())){
+    //     return true;
+    // }
+    // else {
+    //     return false;
+    // }
+    if((coord1.x+rect1.getGlobalBounds().width>coord2.x) && (coord1.x<coord2.x+rect2.getGlobalBounds().width) && (coord1.y+rect1.getGlobalBounds().height>coord2.y) && (coord1.y<coord2.y+rect2.getGlobalBounds().height)){
         return true;
     }
     else{
@@ -223,7 +258,7 @@ void Level::applyLocalInput(vector<bool> &this_move, int camFlag) {
     x_collisions();
     y_collisions();
     
-    self.surface.setPosition(self.coords);
+    self.sprite.setPosition(self.coords);
     
     if(self.vel.x < 0) {
         self.facing_right = false;
@@ -406,9 +441,9 @@ void Level::render() {
     display_surface->setView(gameView);
     
     // Draw all game objects
-    display_surface->draw(self.surface);
+    display_surface->draw(self.sprite);
     for(auto others : other_players) {
-        display_surface->draw(others->surface);
+        display_surface->draw(others->sprite);
     }
     for(auto tile : tiles) {
         display_surface->draw(tile.surface);
@@ -419,7 +454,8 @@ void Level::render() {
 
 void Level::run(){
     // updatePlayer();
-    processPendingUpdates();
+    // processPendingUpdates();
+    cout << tiles.size() << endl;
     updatePlayer();
     for(auto player : other_players){
         InterpolateEntity(player);

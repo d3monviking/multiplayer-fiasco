@@ -5,7 +5,7 @@ using namespace std;
 using boost::asio::ip::udp;
 boost::asio::io_context io_context;
 udp::socket clientSocket(io_context);
-udp::endpoint serverEndpoint(boost::asio::ip::make_address("172.20.10.3"), 8888);
+udp::endpoint serverEndpoint(boost::asio::ip::make_address("172.16.228.140"), 8888);
 
 int screen_width=600;
 int screen_height=600;
@@ -60,21 +60,10 @@ void receiveFromSender(){
                 for(int i=0;i<servermessage->player_data()->size();i++){
                     if(servermessage->player_data()->Get(i)->player_id()==self_id){
                         self.setPos(servermessage->player_data()->Get(i)->pos()->x(), servermessage->player_data()->Get(i)->pos()->y());
-                        self.surface.setPosition(servermessage->player_data()->Get(i)->pos()->x(), servermessage->player_data()->Get(i)->pos()->y());
+                        self.sprite.setPosition(servermessage->player_data()->Get(i)->pos()->x(), servermessage->player_data()->Get(i)->pos()->y());
                         self.setCoords(servermessage->player_data()->Get(i)->pos()->x(), servermessage->player_data()->Get(i)->pos()->y());
-                        self.surface.setSize(sf::Vector2f(50, 50));
-                        if(self_id==1){
-                            self.surface.setFillColor(sf::Color::Green);
-                        }
-                        else if(self_id==2){
-                            self.surface.setFillColor(sf::Color::Blue);
-                        }
-                        else if(self_id==3){
-                            self.surface.setFillColor(sf::Color::Red);
-                        }
-                        else if(self_id==4){
-                            self.surface.setFillColor(sf::Color::Magenta);
-                        }
+                        // self.sprite.setSize(sf::Vector2f(50, 50));
+                        self.setSprite(self_id);
                     }
                 }
 
@@ -100,9 +89,11 @@ void receiveFromSender(){
         }
         else if(servermessage->message_code()==1 && gameStart==0){
             gameStart=1;
+            string path = "./level_terrain.csv";
             cout<<"Game started"<<endl;  
             level.set_id(self_id);
-            level.setup_level(screen_width);
+
+            level.setup_level(path);
             continue;
         }
         //if message code==2:
@@ -205,9 +196,9 @@ int main(){
 
         if(gameStart==0){
            window.clear();
-           window.draw(self.surface);
+           window.draw(self.sprite);
            for(auto others: other_players){
-                window.draw(others->surface);
+                window.draw(others->sprite);
             }
             window.display();
         }

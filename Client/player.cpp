@@ -8,20 +8,8 @@ Player::Player(float x, float y, int id){
     this->pos.x=x;
     this->pos.y=y;
     this->id=id;
-    this->surface.setPosition(x, y);
-    this->surface.setSize(sf::Vector2f(50, 50));
-    if(this->id==1){
-        this->surface.setFillColor(sf::Color::Green);
-    }
-    if(this->id==2){
-        this->surface.setFillColor(sf::Color::Blue);
-    }
-    if(this->id==3){
-        this->surface.setFillColor(sf::Color::Red);
-    }
-    if(this->id==4){
-        this->surface.setFillColor(sf::Color::Magenta);
-    }
+    this->sprite.setPosition(x, y);
+    this->setSprite(id);
     
 }
 int Player::get_id() {return id;}
@@ -33,7 +21,7 @@ sf::Vector2f Player::getPos() {return pos;}
 void Player::setPos(float x,float y) {
     this->pos.x=x;
     this->pos.y=y;
-    this->surface.setPosition(this->pos.x, this->pos.y);
+    this->sprite.setPosition(this->pos.x, this->pos.y);
     // cout<<"set:"<<x<<" "<<y<<endl;
 }
 
@@ -47,6 +35,38 @@ void Player::moveCam(float x_shift, float y_shift){
 void Player::setCoords(float x, float y){
     this->coords.x=x;
     this->coords.y=y;
-    this->surface.setPosition(x, y);
+    this->sprite.setPosition(x, y);
 }
+
+sf::Vector2u Player::getDim(){
+    return this->dim;
+}
+
+void Player::setSprite(int id){
+    if(this->id==1){
+        this->dim = sf::Vector2u(67, 77);
+        this->idleTexture.loadFromFile("../Sprites/Archer/Idle.png");
+        this->sprite.setTexture(idleTexture);
+        this->sprite.setTextureRect(sf::IntRect(18, 50, dim.x, dim.y));
+    }
+    if(this->id==2){
+        this->dim = sf::Vector2u(74, 68);
+        this->idleTexture.loadFromFile("../Sprites/Knight/Idle.png");
+        this->sprite.setTexture(idleTexture);
+        this->sprite.setTextureRect(sf::IntRect(25, 60, dim.x, dim.y));
+    }
+    if(this->id==3){
+        this->dim = sf::Vector2u(55, 76);
+        this->idleTexture.loadFromFile("../Sprites/Wizard/Idle.png");
+        this->sprite.setTexture(idleTexture);
+        this->sprite.setTextureRect(sf::IntRect(37, 52, dim.x, dim.y));
+    }
+    if(this->id==4){
+        this->dim = sf::Vector2u(57, 74);
+        this->idleTexture.loadFromFile("../Sprites/Swordsman/Idle.png");
+        this->sprite.setTexture(idleTexture);
+        this->sprite.setTextureRect(sf::IntRect(37, 54, dim.x, dim.y));
+    }
+}
+
 
