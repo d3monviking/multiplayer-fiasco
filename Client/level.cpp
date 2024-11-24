@@ -456,6 +456,10 @@ void Level::InterpolateEntity(Player *player){
     auto i=interpolation_buffer[player_id].begin();
     float x,y;
     // cout << "arjit " << interpolation_buffer[player_id].size() << endl;
+    if(interpolation_buffer[player_id].size()==0){
+        cout<<"Cant interpolate"<<endl;
+        return;
+    }
     while(((i+1)<interpolation_buffer[player_id].end()) && (i+1)->timestamp<rqd_time) i++;
 
     //Dropping older positions
@@ -464,6 +468,10 @@ void Level::InterpolateEntity(Player *player){
     auto p=interpolation_buffer[player_id].begin();
     while(p!=interpolation_buffer[player_id].end() && p->timestamp<temp){
         p=interpolation_buffer[player_id].erase(p);
+    }
+    if(interpolation_buffer[player_id].size()==0){
+        cout<<"Cant interpolate"<<endl;
+        return;
     }
     i=interpolation_buffer[player_id].begin();
     auto j=interpolation_buffer[player_id].begin();
