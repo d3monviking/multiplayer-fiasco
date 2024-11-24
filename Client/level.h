@@ -36,6 +36,7 @@ class Level{
         std::vector<Collectibles* > collictibles;
         long long powerUpControl;
         sf::Clock clock1;
+        int pUp=0;
     public:
         Level(sf::RenderWindow* window, int screen_width);
         Level();

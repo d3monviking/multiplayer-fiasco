@@ -283,16 +283,20 @@ void Level::applyLocalInput(vector<bool> &this_move, int camFlag) {
             self.on_ground = false;
         }
     }
-
-    if(this_move[0]==1 && !self.boostActive){
-        // cout<<"applying"<<endl;
-        PowerUp* p=new PowerUp(sf::Vector2f(0.f, 0.f),2.00,'P',sf::Vector2f(32.f, 32.f));
-        // PowerUp* q=new PowerUp(sf::Vector2f(0.f, 0.f),100.00,'P',sf::Vector2f(32.f, 32.f));
-        // PowerUp* r=new PowerUp(sf::Vector2f(0.f, 0.f),100.00,'P',sf::Vector2f(32.f, 32.f));
-        self.addPowerUps(p);
-        float time = clock1.getElapsedTime().asSeconds();
-        self.applyPowerUp(time);   
+bool isClockStarted = false;
+if (this_move[0] == 1) { // Player presses 'W'
+      // Restart the clock for timing
+        if (!self.boostActive && pUp<3) {
+            PowerUp* p = new PowerUp(sf::Vector2f(0.f, 0.f), 2.00, 'P', sf::Vector2f(32.f, 32.f));
+            self.addPowerUps(p);
+            long long time = setCurrentTimestamp();
+            self.applyPowerUp(time);
+            pUp++;
+        
     }
+} else if (clock1.getElapsedTime().asSeconds() >= 5.0f) { 
+    isClockStarted = false; // Reset after 5 seconds of inactivity
+}
     // cout<<self.vel.x<<endl;
     
 
@@ -312,9 +316,9 @@ void Level::applyLocalInput(vector<bool> &this_move, int camFlag) {
         updateCamera();
 
     }
-    float curr = clock1.getElapsedTime().asSeconds();
-    cout<<curr-self.boostStart<<endl;
-    if(curr-self.boostStart>0.1){
+    long long curr = setCurrentTimestamp();
+    // cout<<curr-self.boostStart<<endl;
+    if(curr-self.boostStart>30){
         self.boostActive=false;
     }
 
@@ -375,6 +379,9 @@ void Level::updatePlayer(){
         flag=1;
         if(!self.boostActive){
         newMove.thisMove[0] = 1;
+        }
+        else{
+            cout<<"rej"<<endl;
         }
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){

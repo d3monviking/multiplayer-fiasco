@@ -18,7 +18,7 @@ class Player{
         vector<Shell* > shells;
         vector<PowerUp* > powerups;
         bool boostActive=false;
-        float boostStart;
+        long long boostStart;
         
     public:
         sf::Texture idleTexture;
@@ -34,7 +34,7 @@ class Player{
         void moveCam(float x_shift, float y_shift);
         void setSprite(int id);
         void addShell(Shell* shell);
-        void applyPowerUp(float time);
+        void applyPowerUp(long long time);
         void addPowerUps(PowerUp* powerup);
 
     friend class Level;

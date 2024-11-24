@@ -68,13 +68,14 @@ void Player::setSprite(int id){
     }
 }
 
-void Player::applyPowerUp(float time){
+void Player::applyPowerUp(long long time){
     if(powerups.size()!=0){
         float originalSpeed=vel.x;
         // cout<<vel.x<<endl;
         (*powerups.begin())->applyBoost(vel.x);
         boostActive=true;
         boostStart=time;
+        cout<<"boostStart:"<<time<<endl;
         //(*powerups.begin())->updateBoost(vel.x,originalSpeed);
         // cout<<vel.x<<endl;
         powerups.erase(powerups.begin());
