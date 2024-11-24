@@ -5,7 +5,7 @@ using namespace std;
 using boost::asio::ip::udp;
 boost::asio::io_context io_context;
 udp::socket clientSocket(io_context);
-udp::endpoint serverEndpoint(boost::asio::ip::make_address("172.16.228.140"), 8888);
+udp::endpoint serverEndpoint(boost::asio::ip::make_address("192.168.158.246"), 8888);
 
 int screen_width=600;
 int screen_height=600;

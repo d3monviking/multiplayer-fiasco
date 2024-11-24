@@ -28,10 +28,9 @@ void Player::setPos(float x,float y) {
 void Player::moveCam(float x_shift, float y_shift){
     cout<<pos.x<<" "<<pos.y<<endl;
     this->setPos(this->pos.x+x_shift, this->pos.y+y_shift);
-    cout<<pos.x<<" "<<pos.y<<endl;
+   // cout<<pos.x<<" "<<pos.y<<endl;
     cout<<"----------"<<endl;
 }
-
 void Player::setCoords(float x, float y){
     this->coords.x=x;
     this->coords.y=y;
@@ -69,4 +68,24 @@ void Player::setSprite(int id){
     }
 }
 
+void Player::applyPowerUp(float time){
+    if(powerups.size()!=0){
+        float originalSpeed=vel.x;
+        // cout<<vel.x<<endl;
+        (*powerups.begin())->applyBoost(vel.x);
+        boostActive=true;
+        boostStart=time;
+        //(*powerups.begin())->updateBoost(vel.x,originalSpeed);
+        // cout<<vel.x<<endl;
+        powerups.erase(powerups.begin());
+        cout<<"power up applied"<<endl;
+    }
+}
+
+void Player::addShell(Shell* shell){
+    shells.push_back(shell);
+}
+void Player::addPowerUps(PowerUp* powerup){
+    powerups.push_back(powerup);
+}
 

@@ -1,4 +1,6 @@
 #include <SFML/Graphics.hpp>
+#include "tiles.h"
+
 class Player{
     private:
         int id=-1;
@@ -13,6 +15,10 @@ class Player{
         bool on_ground=true;
         bool facing_right=true;
         float prev_x_vel=0;
+        vector<Shell* > shells;
+        vector<PowerUp* > powerups;
+        bool boostActive=false;
+        float boostStart;
         
     public:
         sf::Texture idleTexture;
@@ -27,6 +33,9 @@ class Player{
         void setCoords(float x, float y);
         void moveCam(float x_shift, float y_shift);
         void setSprite(int id);
+        void addShell(Shell* shell);
+        void applyPowerUp(float time);
+        void addPowerUps(PowerUp* powerup);
 
     friend class Level;
 };

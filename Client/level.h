@@ -3,7 +3,6 @@
 #include "message_generated.h"
 #include <boost/asio.hpp>
 #include "player.h"
-#include "tiles.h"
 
 using namespace std;
 
@@ -34,8 +33,9 @@ class Level{
         int level[200][400];
         sf::Texture tileSheet; 
         string tileSetPath = "../Sprites/terrain_tiles.png";
-        
-
+        std::vector<Collectibles* > collictibles;
+        long long powerUpControl;
+        sf::Clock clock1;
     public:
         Level(sf::RenderWindow* window, int screen_width);
         Level();

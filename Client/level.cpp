@@ -28,6 +28,7 @@ Level::Level(sf::RenderWindow* window, int screen_width) {
 Level::Level() {}
 
 void Level::setup_level(string path) {
+
     ifstream file(path);
     if(!file.is_open()){
         cerr << "Error opening file!\n";
@@ -102,11 +103,13 @@ void Level::updateCamera() {
 
 void Level::x_collisions() {
     self.vel.x += self.acc.x;
-    if(self.vel.x > self.maxspeed) {
-        self.vel.x = self.maxspeed;
-    }
-    else if(self.vel.x < -self.maxspeed) {
-        self.vel.x = -self.maxspeed;
+    if(!self.boostActive){
+        if(self.vel.x > self.maxspeed) {
+            self.vel.x = self.maxspeed;
+        }
+        else if(self.vel.x < -self.maxspeed) {
+            self.vel.x = -self.maxspeed;
+        }
     }
 
     self.coords.x += self.vel.x;
@@ -153,6 +156,19 @@ void Level::x_collisions() {
         }
         
     }
+
+    for(auto c=collictibles.begin();c!=collictibles.end();){
+            if(colliding((*c)->surface, self.sprite, (*c)->coords, self.coords)){
+                if((*c)->getType()=='S')
+                    self.addShell(dynamic_cast<Shell*>(*c));
+                else if((*c)->getType()=='P') 
+                    self.addPowerUps(dynamic_cast<PowerUp*>(*c));
+                c=collictibles.erase(c);
+            }
+            else{
+                c++;
+            }
+        }
 
     
 }
@@ -204,6 +220,19 @@ void Level::y_collisions() {
         }
         
     }
+
+    for(auto c=collictibles.begin();c!=collictibles.end();){
+            if(colliding((*c)->surface, self.sprite, (*c)->coords, self.coords)){
+                if((*c)->getType()=='S')
+                    self.addShell(dynamic_cast<Shell*>(*c));
+                else if((*c)->getType()=='P') 
+                    self.addPowerUps(dynamic_cast<PowerUp*>(*c));
+                c=collictibles.erase(c);
+            }
+            else{
+                c++;
+            }
+        }
 }
 
 void Level::set_id(int id){self_id=id;}
@@ -255,6 +284,18 @@ void Level::applyLocalInput(vector<bool> &this_move, int camFlag) {
         }
     }
 
+    if(this_move[0]==1 && !self.boostActive){
+        // cout<<"applying"<<endl;
+        PowerUp* p=new PowerUp(sf::Vector2f(0.f, 0.f),2.00,'P',sf::Vector2f(32.f, 32.f));
+        // PowerUp* q=new PowerUp(sf::Vector2f(0.f, 0.f),100.00,'P',sf::Vector2f(32.f, 32.f));
+        // PowerUp* r=new PowerUp(sf::Vector2f(0.f, 0.f),100.00,'P',sf::Vector2f(32.f, 32.f));
+        self.addPowerUps(p);
+        float time = clock1.getElapsedTime().asSeconds();
+        self.applyPowerUp(time);   
+    }
+    // cout<<self.vel.x<<endl;
+    
+
     x_collisions();
     y_collisions();
     
@@ -271,6 +312,13 @@ void Level::applyLocalInput(vector<bool> &this_move, int camFlag) {
         updateCamera();
 
     }
+    float curr = clock1.getElapsedTime().asSeconds();
+    cout<<curr-self.boostStart<<endl;
+    if(curr-self.boostStart>0.1){
+        self.boostActive=false;
+    }
+
+    // cout<<self.boostActive<<endl;
 
     // cout<<self.coords.x<<" "<<self.coords.y<<endl;
 }
@@ -323,22 +371,25 @@ void Level::processPendingUpdates(){
 void Level::updatePlayer(){
     Move newMove;
     int flag=0;
-    // if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
-    //     flag=1;
-    //     newMove.thisMove[0] = 1;
-    // }
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
+        flag=1;
+        if(!self.boostActive){
+        newMove.thisMove[0] = 1;
+        }
+    }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
         flag=1;
         newMove.thisMove[1] = 1;
     }
-    // if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
-    //     flag=1;
-    //     newMove.thisMove[2] = 1;
-    // }
-   else  if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
+    else  if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
         flag=1;
         newMove.thisMove[3] = 1;
     }
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
+        flag=1;
+        newMove.thisMove[2] = 1;
+    }
+   
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
         flag=1;
         newMove.thisMove[4] = 1;
@@ -386,8 +437,7 @@ void Level::updatePlayer(){
     
     applyLocalInput(newMove.thisMove, 1);
         movemap[count] = sf::Vector2f(self.coords.x, self.coords.y);
-        cout << "seqnum:" << count-1 << " " << fixed << setprecision(self.coords.x == static_cast<int>(self.coords.x) ? 1 : 2) << self.coords.x << " y=" << setprecision(self.coords.y == static_cast<int>(self.coords.y) ? 1 : 2) << self.coords.y << endl;
-
+        //cout << "seqnum:" << count-1 << " " << fixed << setprecision(self.coords.x == static_cast<int>(self.coords.x) ? 1 : 2) << self.coords.x << " y=" << setprecision(self.coords.y == static_cast<int>(self.coords.y) ? 1 : 2) << self.coords.y << endl;
 
 }
 
@@ -455,7 +505,7 @@ void Level::render() {
 void Level::run(){
     // updatePlayer();
     // processPendingUpdates();
-    cout << tiles.size() << endl;
+   // cout << tiles.size() << endl;
     updatePlayer();
     for(auto player : other_players){
         InterpolateEntity(player);

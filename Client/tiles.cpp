@@ -21,3 +21,70 @@ void Tile::update(float x_shift, float y_shift){
     this->surface.setPosition(pos);
 }
 
+Collectibles::Collectibles(sf::Vector2f coords){
+        this->coords=coords;
+        this->surface.setPosition(coords);
+    }
+    PowerUp::PowerUp(sf::Vector2f coords,float speedBoost, char type, sf::Vector2f tileSize)
+     :Collectibles(coords)
+     {
+            // this->surface.setFillColor(sf::Color(29, 22, 128));
+            // this->surface.setSize(tileSize);
+            this->speedBoost=speedBoost;
+            this->type=type;
+        }
+    void PowerUp::applyBoost(float &player_speed) {
+        if (!isBoostActive) {
+            player_speed *= speedBoost; 
+            isBoostActive = true;      
+            boostClock.restart();      
+        }
+    //     if (isBoostActive && boostClock.getElapsedTime().asSeconds() >= 2.0f) {
+    //         isBoostActive = false;      
+    //         // self.boostActive=false; 
+    //         // player_speed /w2= speedBoost; 
+    // }
+    }
+
+    // Update function to revert the boost
+    void PowerUp::updateBoost(float &player_speed, float original_speed) {
+        if (isBoostActive && boostClock.getElapsedTime().asSeconds() >= 5.0f) {
+            player_speed = original_speed; // Revert to original speed
+            isBoostActive = false;        // Reset the boost flag
+        }
+    }
+    float PowerUp::getBoost(){return speedBoost;}
+    char PowerUp::getType(){return 'P';}
+
+    Shell::Shell(sf::Vector2f coords,char type,bool kicked,bool held, sf::Vector2f tileSize)
+    :Collectibles(coords){
+        // this->surface.setFillColor(sf::Color(128, 22, 23));
+        // this->surface.setSize(tileSize);
+        this->type=type;
+        this->kicked=kicked;
+        this->held=held;
+    };
+
+    char Shell::getType(){return 'S';}
+MovingPlatform::MovingPlatform(sf::Sprite sprite):Tile(sprite){
+    movementClock.restart();
+}
+ void MovingPlatform::movePlatform(){
+    float timePassed = movementClock.getElapsedTime().asSeconds();
+    float disp=vel.y*timePassed;
+    if(movingUp){
+        if(disp<minHeight){
+            pos.y=minHeight;
+            movingUp=false;
+            movementClock.restart();
+        }
+    }
+        else{
+            if(pos.y>maxHeight){
+                pos.y=maxHeight;
+                movingUp=true;
+                movementClock.restart();
+            }
+        }
+    surface.setPosition(pos);
+}
