@@ -19,7 +19,7 @@ protected:
     public:
     sf::Sprite surface;
     virtual char getType()=0;
-    Collectibles(sf::Vector2f coords);
+    Collectibles(sf::Vector2f coords, sf::Sprite newSprite);
     virtual ~Collectibles(){};
     friend class Level;
 };
@@ -29,7 +29,7 @@ private:
     bool held;
     char type;
 public:
-    Shell(sf::Vector2f coords,char type,bool kicked,bool held,sf::Vector2f tileSize);
+    Shell(sf::Vector2f coords,char type,bool kicked,bool held,sf::Sprite newSprite);
     // void moveX(float shift, float player_x, float player_coords_x);
     // void moveY(float shift, float player_y, float player_coords_y);
     char getType();
@@ -41,7 +41,7 @@ class PowerUp:public Collectibles{
         sf::Clock boostClock;
     public:
         bool isBoostActive=false;
-        PowerUp(sf::Vector2f coords,float speedBoost,char type,sf::Vector2f tileSize);
+        PowerUp(sf::Vector2f coords,float speedBoost,char type,sf::Sprite newSprite);
         void applyBoost(float &player_speed);
         void updateBoost(float &player_speed, float original_speed); 
         float getBoost();

@@ -89,11 +89,12 @@ void receiveFromSender(){
         }
         else if(servermessage->message_code()==1 && gameStart==0){
             gameStart=1;
-            string path = "./level_terrain.csv";
+            string terrainPath = "./level_terrain.csv";
+            string collectiblePath = "./level_powerups.csv";
             cout<<"Game started"<<endl;  
             level.set_id(self_id);
 
-            level.setup_level(path);
+            level.setup_level(terrainPath, collectiblePath);
             continue;
         }
         //if message code==2:

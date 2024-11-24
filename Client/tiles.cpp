@@ -21,17 +21,19 @@ void Tile::update(float x_shift, float y_shift){
     this->surface.setPosition(pos);
 }
 
-Collectibles::Collectibles(sf::Vector2f coords){
+Collectibles::Collectibles(sf::Vector2f coords, sf::Sprite newSprite){
         this->coords=coords;
         this->surface.setPosition(coords);
+        this->surface = newSprite;
     }
-    PowerUp::PowerUp(sf::Vector2f coords,float speedBoost, char type, sf::Vector2f tileSize)
-     :Collectibles(coords)
+    PowerUp::PowerUp(sf::Vector2f coords,float speedBoost, char type, sf::Sprite newSprite)
+     :Collectibles(coords, newSprite)
      {
             // this->surface.setFillColor(sf::Color(29, 22, 128));
             // this->surface.setSize(tileSize);
             this->speedBoost=speedBoost;
             this->type=type;
+            this->surface = newSprite;
         }
     void PowerUp::applyBoost(float &player_speed) {
         if (!isBoostActive) {
@@ -56,8 +58,8 @@ Collectibles::Collectibles(sf::Vector2f coords){
     float PowerUp::getBoost(){return speedBoost;}
     char PowerUp::getType(){return 'P';}
 
-    Shell::Shell(sf::Vector2f coords,char type,bool kicked,bool held, sf::Vector2f tileSize)
-    :Collectibles(coords){
+    Shell::Shell(sf::Vector2f coords,char type,bool kicked,bool held, sf::Sprite newSprite)
+    :Collectibles(coords, newSprite){
         // this->surface.setFillColor(sf::Color(128, 22, 23));
         // this->surface.setSize(tileSize);
         this->type=type;

@@ -1,5 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include "tiles.h"
+#include "vector"
+
+enum PLAYER_ANIMATION_STATES {IDLE = 0, MOVING_LEFT, MOVING_RIGHT, JUMPING};
 
 class Player{
     private:
@@ -15,18 +18,36 @@ class Player{
         bool on_ground=true;
         bool facing_right=true;
         float prev_x_vel=0;
-        vector<Shell* > shells;
-        vector<PowerUp* > powerups;
+        std::vector<Shell* > shells;
+        std::vector<PowerUp* > powerups;
         bool boostActive=false;
         long long boostStart;
         
     public:
+        sf::Texture movingTexture;
         sf::Texture idleTexture;
+        sf::Texture jumpTexture;
+
+        //Animation
+        short animState;
+        sf::IntRect currentFrameIdle;
+        sf::IntRect currentFrameMove;
+        sf::IntRect currentFrameJump;
+        float initialTextureIdlePos;
+        float initialTextureMovePos;
+        float initialTextureJumpPos;
+        float jumpFrameWidth;
+        bool animationSwitch;
+        sf::Clock animationTimer;
+
         sf::Sprite sprite;
         long long count=0;
         sf::Vector2u getDim();
         Player(float x, float y, int id);
         int get_id();
+        void resetAnimationTimer();
+        void updateAnimation();
+        const bool getAnimSwitch();
         void set_id(int id);
         sf::Vector2f getPos();
         void setPos(float x, float y);

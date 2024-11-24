@@ -27,16 +27,23 @@ Level::Level(sf::RenderWindow* window, int screen_width) {
 
 Level::Level() {}
 
-void Level::setup_level(string path) {
+void Level::setup_level(string terrainPath, string collectiblePath) {
 
-    ifstream file(path);
-    if(!file.is_open()){
+    //Loading tileSheet 
+    if (!tileSheet.loadFromFile(tileSetPath)){
+        cerr << "Error loading the texture!\n";
+        return;
+    }
+
+    //Going through terrain sprites
+    ifstream pathFile(terrainPath);
+    if(!pathFile.is_open()){
         cerr << "Error opening file!\n";
         return;
     }
     string line;
     int row = 0;
-    while(getline(file, line) && row < MAX_ROWS){
+    while(getline(pathFile, line) && row < MAX_ROWS){
         stringstream ss(line);
         string cell;
         int col = 0;
@@ -46,11 +53,7 @@ void Level::setup_level(string path) {
         }
         row++;
     }
-    file.close();
-    if (!tileSheet.loadFromFile(tileSetPath)){
-        cerr << "Error loading the texture!\n";
-        return;
-    }
+    pathFile.close();
     sf::Sprite s;
     for(int i = 0; i < MAX_ROWS; i++) {
         for(int j = 0; j < MAX_COLS; j++) {
@@ -67,6 +70,42 @@ void Level::setup_level(string path) {
             tiles.push_back(newTile);
         }
     }
+
+    //Adding Collectables
+    int collectiblesPos[MAX_ROWS][MAX_COLS];
+    ifstream collectiblePathFile(collectiblePath);
+    if(!collectiblePathFile.is_open()){
+        cerr << "Error opening file!\n";
+        return;        
+    }
+    row = 0;
+    while(getline(collectiblePathFile, line) && row < MAX_ROWS){
+        stringstream ss(line);
+        string cell;
+        int col = 0;
+        while(getline(ss, cell, ',') && col < MAX_COLS){
+            collectiblesPos[row][col] = stoi(cell);
+            col++;
+        }
+        row++;
+    }
+
+    for(int i = 0; i < MAX_ROWS; i++) {
+        for(int j = 0; j < MAX_COLS; j++) {
+            s.setTexture(tileSheet);
+            int tileNumber = collectiblesPos[i][j];
+            if(tileNumber == -1){
+                continue;
+            }
+            int tu = tileNumber % (tileSheet.getSize().x / tileSize.x);
+            int tv = tileNumber / (tileSheet.getSize().x / tileSize.x);
+            s.setTextureRect(sf::IntRect(tu * tileSize.x, tv * tileSize.y, 16, 16));
+            s.setPosition(sf::Vector2f(j * tileSize.x, i * tileSize.y));      
+            Collectibles* newCollectible = new PowerUp(sf::Vector2f(j * tileSize.x, i * tileSize.y), 2.f, 'P', s);      
+            this->collictibles.push_back(newCollectible);
+        }
+    }
+    // cout << "Collect size " << this->collictibles.size() << endl;    
 }
 
 void Level::updateCamera() {
@@ -283,20 +322,18 @@ void Level::applyLocalInput(vector<bool> &this_move, int camFlag) {
             self.on_ground = false;
         }
     }
-bool isClockStarted = false;
-if (this_move[0] == 1) { // Player presses 'W'
-      // Restart the clock for timing
-        if (!self.boostActive && pUp<3) {
-            PowerUp* p = new PowerUp(sf::Vector2f(0.f, 0.f), 2.00, 'P', sf::Vector2f(32.f, 32.f));
-            self.addPowerUps(p);
-            long long time = setCurrentTimestamp();
-            self.applyPowerUp(time);
-            pUp++;
-        
+    bool isClockStarted = false;
+    if (this_move[0] == 1) { // Player presses 'W'
+        // Restart the clock for timing
+            if (!self.boostActive) {
+                long long time = setCurrentTimestamp();
+                self.applyPowerUp(time);
+                pUp++;
+            
+        }
+    } else if (clock1.getElapsedTime().asSeconds() >= 5.0f) { 
+        isClockStarted = false; // Reset after 5 seconds of inactivity
     }
-} else if (clock1.getElapsedTime().asSeconds() >= 5.0f) { 
-    isClockStarted = false; // Reset after 5 seconds of inactivity
-}
     // cout<<self.vel.x<<endl;
     
 
@@ -321,7 +358,7 @@ if (this_move[0] == 1) { // Player presses 'W'
     if(curr-self.boostStart>30){
         self.boostActive=false;
     }
-
+    self.updateAnimation();
     // cout<<self.boostActive<<endl;
 
     // cout<<self.coords.x<<" "<<self.coords.y<<endl;
@@ -459,7 +496,8 @@ void Level::InterpolateEntity(Player *player){
     if(interpolation_buffer[player_id].size()==0){
         cout<<"Cant interpolate"<<endl;
         return;
-    }
+    }        
+
     while(((i+1)<interpolation_buffer[player_id].end()) && (i+1)->timestamp<rqd_time) i++;
 
     //Dropping older positions
@@ -513,6 +551,9 @@ void Level::render() {
     for(auto tile : tiles) {
         display_surface->draw(tile.surface);
     }
+    for(auto collectible: collictibles){
+        display_surface->draw(collectible->surface);
+    }
     
     display_surface->display();
 } 
@@ -526,6 +567,7 @@ void Level::run(){
         InterpolateEntity(player);
         // player->moveCam(x_shift, y_shift);
     }
+    // cout << self.powerups.size() << endl;
     render();
 }
 

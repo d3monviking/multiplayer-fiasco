@@ -43,7 +43,7 @@ class Level{
         void set_id(int id);
         long long setCurrentTimestamp();
         void updateCamera();
-        void setup_level(string path);
+        void setup_level(string terrainPath, string collectiblePath);
         void scroll_x();
         void scroll_y();
         void x_collisions();
