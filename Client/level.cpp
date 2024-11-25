@@ -27,10 +27,15 @@ Level::Level(sf::RenderWindow* window, int screen_width) {
 
 Level::Level() {}
 
-void Level::setup_level(string terrainPath, string collectiblePath) {
+void Level::setup_level(string terrainPath, string collectiblePath, string movingPlatformPath) {
 
     //Loading tileSheet 
     if (!tileSheet.loadFromFile(tileSetPath)){
+        cerr << "Error loading the texture!\n";
+        return;
+    }
+
+    if (!movingPlatImage.loadFromFile(movingPlatPath)){
         cerr << "Error loading the texture!\n";
         return;
     }
@@ -105,6 +110,44 @@ void Level::setup_level(string terrainPath, string collectiblePath) {
             this->collictibles.push_back(newCollectible);
         }
     }
+
+    //Adding Moving Platform
+
+    int movingPlatformPos[MAX_ROWS][MAX_COLS];
+    ifstream movingPlatformPathFile(movingPlatformPath);
+    if(!movingPlatformPathFile.is_open()){
+        cerr << "Error opening file here!\n";
+        return;        
+    }
+    row = 0;
+    while(getline(movingPlatformPathFile, line) && row < MAX_ROWS){
+        stringstream ss(line);
+        string cell;
+        int col = 0;
+        while(getline(ss, cell, ',') && col < MAX_COLS){
+            movingPlatformPos[row][col] = stoi(cell);
+            col++;
+        }
+        row++;
+    }
+
+    for(int i = 0; i < MAX_ROWS; i++) {
+        for(int j = 0; j < MAX_COLS; j++) {
+            s.setTexture(movingPlatImage);
+            int tileNumber = movingPlatformPos[i][j];
+            if(tileNumber == -1){
+                continue;
+            }
+            int tu = tileNumber % (tileSheet.getSize().x / tileSize.x);
+            int tv = tileNumber / (tileSheet.getSize().x / tileSize.x);
+            s.setTextureRect(sf::IntRect(tu * tileSize.x, tv * tileSize.y, 48, 16));
+            s.setScale(sf::Vector2f(3.f, 1.2f));
+            s.setPosition(sf::Vector2f(j * tileSize.x, i * tileSize.y));  
+            MovingPlatform* newPlatform = new MovingPlatform(s);    
+            this->movingPlatforms.push_back(newPlatform);
+        }
+    }
+
     // cout << "Collect size " << this->collictibles.size() << endl;    
 }
 
@@ -553,6 +596,9 @@ void Level::render() {
     }
     for(auto collectible: collictibles){
         display_surface->draw(collectible->surface);
+    }
+    for(auto movingPlat: movingPlatforms){
+        display_surface->draw(movingPlat->surface);
     }
     
     display_surface->display();

@@ -19,6 +19,7 @@ class Level{
         float x_shift=0;
         float y_shift=0;
         std::vector<Tile> tiles;
+        std::vector<MovingPlatform*> movingPlatforms; 
         float gravity = 1.4;
         float right_calibration;
         float left_calibration=0;
@@ -28,11 +29,13 @@ class Level{
         float start_ypos=0;
         sf::View gameView;
         float cameraOffsetX = 100.0f;
-        const int MAX_ROWS = 200;
-        const int MAX_COLS = 400;
-        int level[200][400];
+        const int MAX_ROWS = 400;
+        const int MAX_COLS = 1200;
+        int level[400][1200];
         sf::Texture tileSheet; 
+        sf::Texture movingPlatImage;
         string tileSetPath = "../Sprites/terrain_tiles.png";
+        string movingPlatPath = "../Sprites/platform.png";
         std::vector<Collectibles* > collictibles;
         long long powerUpControl;
         sf::Clock clock1;
@@ -43,7 +46,7 @@ class Level{
         void set_id(int id);
         long long setCurrentTimestamp();
         void updateCamera();
-        void setup_level(string terrainPath, string collectiblePath);
+        void setup_level(string terrainPath, string collectiblePath, string movingPlatformPath);
         void scroll_x();
         void scroll_y();
         void x_collisions();

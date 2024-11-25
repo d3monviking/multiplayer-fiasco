@@ -10,7 +10,6 @@ class Tile{
         Tile(sf::Sprite sprite);
 
         void update(float x_shit, float y_shift);
-
     friend class Level;
 };
 class Collectibles{
@@ -56,4 +55,5 @@ class MovingPlatform:Tile{
     public:
     MovingPlatform(sf::Sprite sprite);
     void movePlatform();
+    friend class Level;
 };
