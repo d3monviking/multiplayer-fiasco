@@ -105,7 +105,7 @@ void receiveFromSender(){
             continue;
         }
         //if message code==2:
-        if(servermessage->player_data()){
+        else if(servermessage->message_code()==2){
             auto states = servermessage->player_data();
             for(int j=0;j<states->size();j++){
                 auto player_state = states->Get(j);
@@ -136,9 +136,25 @@ void receiveFromSender(){
                     updates_buffer.push_back(data);
                 }
             }
+            continue;
         }
-        else{
-            cout<<"empty"<<endl;
+        
+
+        for(int i=0;i<level.collictibles.size();i++){
+            Collectibles* collectible=level.collictibles[i];
+            auto states = servermessage->player_data();
+            int flag=0;
+            for(int j=0;j<states->size();j++){
+                auto collectible_state = states->Get(j);
+                if(collectible_state->pos()->x()==collectible->coords.x &&
+                collectible_state->pos()->y()==collectible->coords.y){
+                    flag=1;
+                    break;
+                }
+            }
+            if(flag==0){
+                level.collictibles.erase(level.collictibles.begin()+i);
+            }
         }
     }
 }

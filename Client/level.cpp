@@ -15,6 +15,7 @@ extern int screen_width;
 extern int screen_height;
 
 
+
 Level::Level(sf::RenderWindow* window, int screen_width) {
     display_surface = window;
     level_height = MAX_ROWS * tileSize.y;

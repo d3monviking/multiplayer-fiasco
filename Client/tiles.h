@@ -13,14 +13,13 @@ class Tile{
     friend class Level;
 };
 class Collectibles{
-protected:
-    sf::Vector2f coords;
     public:
-    sf::Sprite surface;
-    virtual char getType()=0;
-    Collectibles(sf::Vector2f coords, sf::Sprite newSprite);
-    virtual ~Collectibles(){};
-    friend class Level;
+    sf::Vector2f coords;
+        sf::Sprite surface;
+        virtual char getType()=0;
+        Collectibles(sf::Vector2f coords, sf::Sprite newSprite);
+        virtual ~Collectibles(){};
+        friend class Level;
 };
 class Shell:public Collectibles{
 private:
