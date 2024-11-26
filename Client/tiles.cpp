@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Tile::Tile(sf::Sprite sprite, char type){
+Tile::Tile(sf::Sprite sprite){
     // this->pos=pos;
     this->coords=sprite.getPosition();
     this->vel=sf::Vector2f(0,0);
@@ -11,7 +11,6 @@ Tile::Tile(sf::Sprite sprite, char type){
     // this->surface.setFillColor(sf::Color(120, 83, 38));
     // this->surface.setPosition(pos);
     // this->surface.setTextureRect(sf::IntRect(texturePos.x, texturePos.y, 16, 16));
-    this->type = type;
     this->surface = sprite;
 }
 
@@ -69,7 +68,7 @@ Collectibles::Collectibles(sf::Vector2f coords, sf::Sprite newSprite){
     };
 
     char Shell::getType(){return 'S';}
-MovingPlatform::MovingPlatform(sf::Sprite sprite):Tile(sprite, 'M'){
+MovingPlatform::MovingPlatform(sf::Sprite sprite):Tile(sprite){
     this->vel.x = 1;
     this->initialCoords = coords;
     movementClock.restart();

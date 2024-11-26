@@ -7,8 +7,8 @@ boost::asio::io_context io_context;
 udp::socket clientSocket(io_context);
 udp::endpoint serverEndpoint(boost::asio::ip::make_address("172.16.228.140"), 8888);
 
-int screen_width=600;
-int screen_height=600;
+int screen_width=1920;
+int screen_height=1080;
 sf::RenderWindow window(sf::VideoMode(screen_width, screen_height), "SFML works!");
 
 auto window_ptr =  &window;
@@ -92,10 +92,16 @@ void receiveFromSender(){
             string terrainPath = "./TileMapFiles/level_terrain.csv";
             string collectiblePath = "./TileMapFiles/level_powerups.csv";
             string movingPlatformPath = "./TileMapFiles/level_moving_platform.csv";
+            string rocksPath = "./TileMapFiles/level_rocks.csv";
+            string waterPath = "./TileMapFiles/level_water.csv";
+            string treePath = "./TileMapFiles/level_tree.csv";
+            string backgroundPath = "./TileMapFiles/level_background.csv";
+            string spikePath = "./TileMapFiles/level_spikes.csv";
             cout<<"Game started"<<endl;  
             level.set_id(self_id);
 
-            level.setup_level(terrainPath, collectiblePath, movingPlatformPath);
+            level.setup_level(terrainPath, collectiblePath, movingPlatformPath, rocksPath, treePath, waterPath, backgroundPath, spikePath);
+            continue;
             continue;
         }
         //if message code==2:
@@ -187,6 +193,7 @@ int main(){
     while(window.isOpen()){
 
         sf::Event event;
+        
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed) {

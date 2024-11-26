@@ -27,7 +27,7 @@ Level::Level(sf::RenderWindow* window, int screen_width) {
 
 Level::Level() {}
 
-void Level::setup_level(string terrainPath, string collectiblePath, string movingPlatformPath) {
+void Level::setup_level(string terrainPath, string collectiblePath, string movingPlatformPath, string rocksPath, string treePath, string waterPath, string backgroundPath, string spikePath) {
 
     //Loading tileSheet 
     if (!tileSheet.loadFromFile(tileSetPath)){
@@ -40,6 +40,20 @@ void Level::setup_level(string terrainPath, string collectiblePath, string movin
         return;
     }
 
+    if(!treeImage.loadFromFile(treeImagePath)){
+        cerr << "Error loading the texture!\n";
+        return;        
+    }
+
+    if(!rocksImage.loadFromFile(this->rocksImagePath)){
+        cerr << "Error loading the texture!\n";
+        return;        
+    }    
+
+    if(!spikeImage.loadFromFile(spikeImagePath)){
+        cerr << "Error loading the texture!\n";
+        return;        
+    }        
     //Going through terrain sprites
     ifstream pathFile(terrainPath);
     if(!pathFile.is_open()){
@@ -71,7 +85,7 @@ void Level::setup_level(string terrainPath, string collectiblePath, string movin
             int tv = tileNumber / (tileSheet.getSize().x / tileSize.x);
             s.setTextureRect(sf::IntRect(tu * tileSize.x, tv * tileSize.y, 16, 16));
             s.setPosition(sf::Vector2f(j * tileSize.x, i * tileSize.y));      
-            Tile newTile(s, 'T');      
+            Tile newTile(s);      
             tiles.push_back(newTile);
         }
     }
@@ -88,16 +102,17 @@ void Level::setup_level(string terrainPath, string collectiblePath, string movin
         string cell;
         int col = 0;
         while(getline(ss, cell, ',') && col < MAX_COLS){
-            collectiblesPos[row][col] = stoi(cell);
+            level[row][col] = stoi(cell);
             col++;
         }
         row++;
     }
+    collectiblePathFile.close();
 
     for(int i = 0; i < MAX_ROWS; i++) {
         for(int j = 0; j < MAX_COLS; j++) {
             s.setTexture(tileSheet);
-            int tileNumber = collectiblesPos[i][j];
+            int tileNumber = level[i][j];
             if(tileNumber == -1){
                 continue;
             }
@@ -107,6 +122,40 @@ void Level::setup_level(string terrainPath, string collectiblePath, string movin
             s.setPosition(sf::Vector2f(j * tileSize.x, i * tileSize.y));      
             Collectibles* newCollectible = new PowerUp(sf::Vector2f(j * tileSize.x, i * tileSize.y), 2.f, 'P', s);      
             this->collictibles.push_back(newCollectible);
+        }
+    }
+    finishTexture.loadFromFile(finishLinePath);
+    ifstream finishPath("./TileMapFiles/level_finishLine.csv");
+    if(!finishPath.is_open()){
+        cerr << "Error opening file!\n";
+        return;        
+    }
+    row = 0;
+    while(getline(finishPath, line) && row < MAX_ROWS){
+        stringstream ss(line);
+        string cell;
+        int col = 0;
+        while(getline(ss, cell, ',') && col < MAX_COLS){
+            level[row][col] = stoi(cell);
+            col++;
+        }
+        row++;
+    }
+    finishPath.close();
+
+    for(int i = 0; i < MAX_ROWS; i++) {
+        for(int j = 0; j < MAX_COLS; j++) {
+            s.setTexture(finishTexture);
+            int tileNumber = level[i][j];
+            if(tileNumber == -1){
+                continue;
+            }
+            int tu = tileNumber % (finishTexture.getSize().x / tileSize.x);
+            int tv = tileNumber / (finishTexture.getSize().x / tileSize.x);
+            s.setTextureRect(sf::IntRect(tu * tileSize.x, tv * tileSize.y, 16, 16));
+            s.setPosition(sf::Vector2f(j * tileSize.x, i * tileSize.y));      
+            Tile t(s);
+            tiles.push_back(s);
         }
     }
 
@@ -123,21 +172,22 @@ void Level::setup_level(string terrainPath, string collectiblePath, string movin
         string cell;
         int col = 0;
         while(getline(ss, cell, ',') && col < MAX_COLS){
-            movingPlatformPos[row][col] = stoi(cell);
+            level[row][col] = stoi(cell);
             col++;
         }
         row++;
     }
+    movingPlatformPathFile.close();
 
     for(int i = 0; i < MAX_ROWS; i++) {
         for(int j = 0; j < MAX_COLS; j++) {
             s.setTexture(movingPlatImage);
-            int tileNumber = movingPlatformPos[i][j];
+            int tileNumber = level[i][j];
             if(tileNumber == -1){
                 continue;
             }
-            int tu = tileNumber % (tileSheet.getSize().x / tileSize.x);
-            int tv = tileNumber / (tileSheet.getSize().x / tileSize.x);
+            int tu = tileNumber % (movingPlatImage.getSize().x / tileSize.x);
+            int tv = tileNumber / (movingPlatImage.getSize().x / tileSize.x);
             s.setTextureRect(sf::IntRect(tu * tileSize.x, tv * tileSize.y, 48, 16));
             s.setScale(sf::Vector2f(3.f, 1.2f));
             s.setPosition(sf::Vector2f(j * tileSize.x, i * tileSize.y));  
@@ -146,7 +196,144 @@ void Level::setup_level(string terrainPath, string collectiblePath, string movin
         }
     }
 
-    // cout << "Collect size " << this->collictibles.size() << endl;    
+
+    ifstream treeFile(treePath);
+    if(!treeFile.is_open()){
+        cerr << "Error opening file here!\n";
+        return;        
+    }
+    row = 0;
+    while(getline(treeFile, line) && row < MAX_ROWS){
+        stringstream ss(line);
+        string cell;
+        int col = 0;
+        while(getline(ss, cell, ',') && col < MAX_COLS){
+            level[row][col] = stoi(cell);
+            col++;
+        }
+        row++;
+    }
+    treeFile.close();
+    for(int i = 0; i < MAX_ROWS; i++) {
+        for(int j = 0; j < MAX_COLS; j++) {
+            s.setTexture(treeImage);
+            int tileNumber = level[i][j];
+            if(tileNumber == -1){
+                continue;
+            }
+            int tu = tileNumber % (treeImage.getSize().x / tileSize.x);
+            int tv = tileNumber / (treeImage.getSize().x / tileSize.x);
+            s.setTextureRect(sf::IntRect(tu * tileSize.x, tv * tileSize.y, 16, 16));
+            s.setPosition(sf::Vector2f(j * tileSize.x, i * tileSize.y));  
+            Tile newTile(s);
+            tiles.push_back(newTile);
+        }
+    }
+
+    // ifstream rockFile(treePath);
+    // int rockArray[MAX_ROWS][MAX_COLS];
+    // if(!rockFile.is_open()){
+    //     cerr << "Error opening file here!\n";
+    //     return;        
+    // }
+    // row = 0;
+    // while(getline(rockFile, line) && row < MAX_ROWS){
+    //     stringstream ss(line);
+    //     string cell;
+    //     int col = 0;
+    //     while(getline(ss, cell, ',') && col < MAX_COLS){
+    //         rockArray[row][col] = stoi(cell);
+    //         col++;
+    //     }
+    //     row++;
+    // }
+    // rockFile.close();
+
+    // for(int i = 0; i < MAX_ROWS; i++) {
+    //     for(int j = 0; j < MAX_COLS; j++) {
+    //         s.setTexture(this->rocksImage);
+    //         int tileNumber = rockArray[i][j];
+    //         if(tileNumber == -1){
+    //             continue;
+    //         }
+    //         int tu = tileNumber % (rocksImage.getSize().x / tileSize.x);
+    //         int tv = tileNumber / (rocksImage.getSize().x / tileSize.x);
+    //         s.setTextureRect(sf::IntRect(tu * tileSize.x, tv * tileSize.y, 16, 16));
+    //         s.setPosition(sf::Vector2f(j * tileSize.x, i * tileSize.y));  
+    //         Tile newTile(s);
+    //         cout << tileNumber << endl;
+    //         tiles.push_back(newTile);
+    //     }
+    // }
+
+    ifstream waterFile(waterPath);
+    if(!waterFile.is_open()){
+        cerr << "Error opening file here!\n";
+        return;        
+    }
+    row = 0;
+    while(getline(waterFile, line) && row < MAX_ROWS){
+        stringstream ss(line);
+        string cell;
+        int col = 0;
+        while(getline(ss, cell, ',') && col < MAX_COLS){
+            level[row][col] = stoi(cell);
+            col++;
+        }
+        row++;
+    }
+    waterFile.close();
+
+    for(int i = 0; i < MAX_ROWS; i++) {
+        for(int j = 0; j < MAX_COLS; j++) {
+            s.setTexture(tileSheet);
+            int tileNumber = level[i][j];
+            if(tileNumber == -1){
+                continue;
+            }
+            int tu = tileNumber % (tileSheet.getSize().x / tileSize.x);
+            int tv = tileNumber / (tileSheet.getSize().x / tileSize.x);
+            s.setTextureRect(sf::IntRect(tu * tileSize.x, tv * tileSize.y, 16, 16));
+            s.setPosition(sf::Vector2f(j * tileSize.x, i * tileSize.y));  
+            Tile newTile(s);
+            killingThings.push_back(newTile);
+        }
+    }
+
+    ifstream spikeFile(spikePath);
+    if(!spikeFile.is_open()){
+        cerr << "Error opening file here!\n";
+        return;        
+    }
+    row = 0;
+    while(getline(spikeFile, line) && row < MAX_ROWS){
+        stringstream ss(line);
+        string cell;
+        int col = 0;
+        while(getline(ss, cell, ',') && col < MAX_COLS){
+            level[row][col] = stoi(cell);
+            col++;
+        }
+        row++;
+    }
+    spikeFile.close();
+
+    for(int i = 0; i < MAX_ROWS; i++) {
+        for(int j = 0; j < MAX_COLS; j++) {
+            s.setTexture(spikeImage);
+            int tileNumber = level[i][j];
+            if(tileNumber == -1){
+                continue;
+            }
+            // int tu = tileNumber % (tileSheet.getSize().x / tileSize.x);
+            // int tv = tileNumber / (tileSheet.getSize().x / tileSize.x);
+            s.setTextureRect(sf::IntRect(0, 0, 16, 16));
+            s.setPosition(sf::Vector2f(j * tileSize.x, i * tileSize.y));  
+            Tile newTile(s);
+            killingThings.push_back(newTile);
+        }
+    }
+
 }
 
 void Level::updateCamera() {
@@ -521,7 +708,7 @@ void Level::updatePlayer(){
 
     // Creating FlatBuffer variables to store and transmit data
 
-        // cout<<"apt"<<self.pos.x<<endl;
+        cout<<"apt"<<self.pos.y<<endl;
         newMove.seq_num=count++;
         newMove.pos.y=self.pos.y;
         newMove.pos.x=self.pos.x;
@@ -623,9 +810,21 @@ void Level::render() {
     display_surface->setView(gameView);
     
     // Draw all game objects
+    sf::Texture bgTexture;
+    if (!bgTexture.loadFromFile("../Sprites/bg.jpg")) {
+        std::cerr << "Error loading background image!" << std::endl;
+    }    
+    sf::Sprite backgroundSprite;
+    backgroundSprite.setTexture(bgTexture);
+    backgroundSprite.setScale(4.5f, 7.f);
+    display_surface->draw(backgroundSprite);
     display_surface->draw(self.sprite);
     for(auto others : other_players) {
         display_surface->draw(others->sprite);
+    }
+
+    for(auto killingYou: killingThings){
+        display_surface->draw(killingYou.surface);
     }
     for(auto tile : tiles) {
         display_surface->draw(tile.surface);
@@ -636,13 +835,13 @@ void Level::render() {
     for(auto movingPlat: movingPlatforms){
         display_surface->draw(movingPlat->surface);
     }
-    
+
     display_surface->display();
 } 
 
 void Level::run(){
     // updatePlayer();
-    processPendingUpdates();
+    // processPendingUpdates();
    // cout << tiles.size() << endl;
     updatePlayer();
     for(auto player : other_players){

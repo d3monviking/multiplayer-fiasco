@@ -7,7 +7,7 @@ class Tile{
         sf::Vector2f acc;
     public:
         sf::Sprite surface;
-        Tile(sf::Sprite sprite, char type);
+        Tile(sf::Sprite sprite);
         void update(float x_shit, float y_shift);
         char type='T';
     friend class Level;

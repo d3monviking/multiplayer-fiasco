@@ -18,8 +18,6 @@ class Level{
         int self_id;
         float x_shift=0;
         float y_shift=0;
-        std::vector<Tile> tiles;
-        std::vector<MovingPlatform*> movingPlatforms; 
         float gravity = 1.4;
         float right_calibration;
         float left_calibration=0;
@@ -36,9 +34,24 @@ class Level{
         int movingPlatformPos[400][1200];
         sf::Texture tileSheet; 
         sf::Texture movingPlatImage;
+        sf::Texture treeImage;
+        sf::Texture rocksImage;
+        sf::Texture spikeImage;
+        sf::Texture finishTexture;
+
         string tileSetPath = "../Sprites/terrain_tiles.png";
         string movingPlatPath = "../Sprites/platform.png";
+        string treeImagePath = "../Sprites/Green-Tree.png";
+        string rocksImagePath = "../Sprites/Props-Rocks.png";
+        string spikeImagePath = "../Sprites/spike.png";
+        string finishLinePath = "../Sprites/finishLine.png";
+
+        //Sprite Vectors
+        std::vector<Tile> tiles;
+        std::vector<MovingPlatform*> movingPlatforms; 
         std::vector<Collectibles* > collictibles;
+        std::vector<Tile> background;
+        std::vector<Tile> killingThings;
         long long powerUpControl;
         sf::Clock clock1;
         int pUp=0;
@@ -48,7 +61,7 @@ class Level{
         void set_id(int id);
         long long setCurrentTimestamp();
         void updateCamera();
-        void setup_level(string terrainPath, string collectiblePath, string movingPlatformPath);
+        void setup_level(string terrainPath, string collectiblePath, string movingPlatformPath, string rocksPath, string treePath, string waterPath, string backgroundPath, string spikePath);
         void scroll_x();
         void scroll_y();
         void x_collisions();

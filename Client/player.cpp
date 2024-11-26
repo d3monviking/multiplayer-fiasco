@@ -65,7 +65,7 @@ void Player::setSprite(int id){
         this->sprite.setTexture(idleTexture);
         this->sprite.setTextureRect(this->currentFrameIdle);
     }
-    if(this->id==3){
+    if(this->id==4){
         this->dim = sf::Vector2u(56, 94);
         if(!this->movingTexture.loadFromFile("../Sprites/Musketeer/Run.png")){
             cout << "ERROR: PLAYER:: Could not load the player sheet\n";
@@ -78,14 +78,15 @@ void Player::setSprite(int id){
         }
         this->initialTextureIdlePos = 36;
         this->initialTextureMovePos = 24;
-        this->initialTextureJumpPos = 34;
+        this->initialTextureJumpPos = 416;
+        this->jumpFrameWidth = 700;
         this->currentFrameIdle = sf::IntRect(36, 54, dim.x, dim.y);
         this->currentFrameMove = sf::IntRect(24, 55, dim.x, dim.y);
-        this->currentFrameJump = sf::IntRect(34, 34, dim.x, dim.y);
+        this->currentFrameJump = sf::IntRect(416, 34, dim.x, dim.y);
         this->sprite.setTexture(idleTexture);
         this->sprite.setTextureRect(this->currentFrameIdle);
     }
-    if(this->id==1){
+    if(this->id==3){
         this->dim = sf::Vector2u(55, 81);
         if(!this->movingTexture.loadFromFile("../Sprites/Wizard/Run.png")){
             cout << "ERROR: PLAYER:: Could not load the player sheet\n";
@@ -106,7 +107,7 @@ void Player::setSprite(int id){
         this->sprite.setTexture(idleTexture);
         this->sprite.setTextureRect(this->currentFrameIdle);
     }
-    if(this->id==4){
+    if(this->id==1){
         this->dim = sf::Vector2u(57, 80);
         if(!this->movingTexture.loadFromFile("../Sprites/Swordsman/Run.png")){
             cout << "ERROR: PLAYER:: Could not load the player sheet\n";
@@ -120,6 +121,7 @@ void Player::setSprite(int id){
         this->initialTextureIdlePos = 37;
         this->initialTextureJumpPos = 38;
         this->initialTextureMovePos = 36;
+        this->jumpFrameWidth = 940;
         this->currentFrameIdle = sf::IntRect(37, 54, dim.x, dim.y);
         this->currentFrameMove = sf::IntRect(38, 54, dim.x, dim.y);
         this->currentFrameJump = sf::IntRect(36, 48, dim.x, dim.y);
@@ -167,20 +169,20 @@ void Player::updateAnimation(){
     if(!this->on_ground){
         this->animState = PLAYER_ANIMATION_STATES::JUMPING;
     }
-    else if(this->vel.x == 0){
-        this->animState = PLAYER_ANIMATION_STATES::IDLE;
-    }
-    else if(this->vel.x < 0){
+    else if(this->vel.x < -0.4){
         this->animState = PLAYER_ANIMATION_STATES::MOVING_LEFT;
     }
-    else if(this->vel.x > 0){
+    else if(this->vel.x > 0.4){
         this->animState = PLAYER_ANIMATION_STATES::MOVING_RIGHT;
+    }
+    else {
+        this->animState = PLAYER_ANIMATION_STATES::IDLE;
     }
 
     if(this->animState == PLAYER_ANIMATION_STATES::IDLE){
         if(this->animationTimer.getElapsedTime().asSeconds() >= 0.08f || this->getAnimSwitch()){
             this->currentFrameIdle.left += 128.f;
-            if(this->currentFrameIdle.left >= 700.f){
+            if(this->currentFrameIdle.left >= 640.f){
                 this->currentFrameIdle.left = this->initialTextureIdlePos;
             }  
             this->animationTimer.restart();
