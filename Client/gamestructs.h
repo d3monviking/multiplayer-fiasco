@@ -2,6 +2,7 @@
 
 struct InterpolationData{
     sf::Vector2f pos;
+    sf::Vector2f vel;
     long timestamp;
 };
 
