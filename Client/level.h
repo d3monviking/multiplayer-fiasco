@@ -49,7 +49,6 @@ class Level{
         //Sprite Vectors
         std::vector<Tile> tiles;
         std::vector<MovingPlatform*> movingPlatforms; 
-        std::vector<Collectibles* > collictibles;
         std::vector<Tile> background;
         std::vector<Tile> killingThings;
         long long powerUpControl;
@@ -57,6 +56,7 @@ class Level{
         int pUp=0;
     public:
         Level(sf::RenderWindow* window, int screen_width);
+        std::vector<Collectibles* > collictibles;
         Level();
         void set_id(int id);
         long long setCurrentTimestamp();

@@ -15,6 +15,7 @@ extern int screen_width;
 extern int screen_height;
 
 
+
 Level::Level(sf::RenderWindow* window, int screen_width) {
     display_surface = window;
     level_height = MAX_ROWS * tileSize.y;
@@ -751,58 +752,122 @@ void Level::updatePlayer(){
 
 }
 
+void Level::InterpolateEntity(Player* player) {
+    long long current_time = setCurrentTimestamp(); // Time in milliseconds
+    const long long INTERPOLATION_DELAY = 100; // Delay in milliseconds
+    long long target_time = current_time - INTERPOLATION_DELAY;
 
-void Level::InterpolateEntity(Player *player){
-    long long current_time=setCurrentTimestamp();
-    long long rqd_time=current_time-20;
-    int player_id=player->get_id() - 1;
-    auto i=interpolation_buffer[player_id].begin();
-    float x,y;
-    // cout << "arjit " << interpolation_buffer[player_id].size() << endl;
-    if(interpolation_buffer[player_id].size()==0){
-        cout<<"Cant interpolate"<<endl;
-        return;
-    }        
+    int player_id = player->get_id() - 1;
+    auto& buffer = interpolation_buffer[player_id];
+    if (buffer.empty()) return;
 
-    while(((i+1)<interpolation_buffer[player_id].end()) && (i+1)->timestamp<rqd_time) i++;
+    // Ensure the buffer is sorted by timestamp
+    std::sort(buffer.begin(), buffer.end(), [](const InterpolationData& a, const InterpolationData& b) {
+        return a.timestamp < b.timestamp;
+    });
 
-    //Dropping older positions
+    // Remove old data from the buffer
+    const long long MAX_BUFFER_AGE = 2000; // Maximum age in milliseconds
+    buffer.erase(
+        buffer.begin(),
+        std::lower_bound(buffer.begin(), buffer.end(), current_time - MAX_BUFFER_AGE,
+            [](const InterpolationData& entry, long long time) { 
+                return entry.timestamp < time; 
+            })
+    );
 
-    long long temp=i->timestamp;
-    auto p=interpolation_buffer[player_id].begin();
-    while(p!=interpolation_buffer[player_id].end() && p->timestamp<temp){
-        p=interpolation_buffer[player_id].erase(p);
+    // Find interpolation points
+    auto next_it = std::lower_bound(buffer.begin(), buffer.end(), target_time, 
+        [](const InterpolationData& entry, long long time) {
+            return entry.timestamp < time;
+        });
+
+    InterpolationData predictedState;
+
+    if (next_it == buffer.begin()) {
+        // Extrapolate before first sample
+        if (buffer.size() >= 2) {
+            auto& p1 = buffer[0];
+            auto& p2 = buffer[1];
+            long long dt = p2.timestamp - p1.timestamp;
+            if (dt > 0) {
+                float factor = static_cast<float>(target_time - p1.timestamp) / dt;
+                predictedState.pos.x = p1.pos.x + factor * (p2.pos.x - p1.pos.x);
+                predictedState.pos.y = p1.pos.y + factor * (p2.pos.y - p1.pos.y);
+                predictedState.vel = p1.vel;
+            } else {
+                predictedState.pos = p1.pos;
+                predictedState.vel = p1.vel;
+            }
+        } else {
+            predictedState.pos = buffer[0].pos;
+            predictedState.vel = buffer[0].vel;
+        }
+    } else if (next_it == buffer.end()) {
+        // Extrapolate after last sample
+        if (buffer.size() >= 2) {
+            auto& p1 = buffer[buffer.size() - 2];
+            auto& p2 = buffer.back();
+            long long dt = p2.timestamp - p1.timestamp;
+            if (dt > 0) {
+                float factor = static_cast<float>(target_time - p2.timestamp) / dt;
+                predictedState.pos.x = p2.pos.x + factor * (p2.pos.x - p1.pos.x);
+                predictedState.pos.y = p2.pos.y + factor * (p2.pos.y - p1.pos.y);
+                predictedState.vel = p2.vel;
+            } else {
+                predictedState.pos = p2.pos;
+                predictedState.vel = p2.vel;
+            }
+        } else {
+            predictedState.pos = buffer.back().pos;
+            predictedState.vel = buffer.back().vel;
+        }
+    } else {
+        // Interpolate between prev_it and next_it
+        auto prev_it = std::prev(next_it);
+        long long dt = next_it->timestamp - prev_it->timestamp;
+        if (dt == 0) {
+            predictedState.pos = next_it->pos;
+            predictedState.vel = next_it->vel;
+        } else {
+            float alpha = static_cast<float>(target_time - prev_it->timestamp) / dt;
+            predictedState.pos.x = prev_it->pos.x + alpha * (next_it->pos.x - prev_it->pos.x);
+            predictedState.pos.y = prev_it->pos.y + alpha * (next_it->pos.y - prev_it->pos.y);
+            predictedState.vel.x = prev_it->vel.x + alpha * (next_it->vel.x - prev_it->vel.x);
+            predictedState.vel.y = prev_it->vel.y + alpha * (next_it->vel.y - prev_it->vel.y);
+        }
     }
-    if(interpolation_buffer[player_id].size()==0){
-        cout<<"Cant interpolate"<<endl;
-        return;
-    }
-    i=interpolation_buffer[player_id].begin();
-    auto j=interpolation_buffer[player_id].begin();
-    while(j<interpolation_buffer[player_id].end() && j->timestamp<=temp) j++;
-    // if(i==interpolation_buffer[player_id].begin()) cout<<"yay"<<endl;
 
-    //if no need for interpolation
+    // Perform collision checks
+    sf::Vector2f oldPos = player->coords;
+    player->setCoords(predictedState.pos.x, predictedState.pos.y);
 
-    // cout<<"using:"<<j->pos.y<<" "<<i->pos.y<<endl;;
-    // for(int k=0;k<interpolation_buffer[player_id].size();k++){
-    //     cout<<interpolation_buffer[player_id][k].pos.y<<":"<<interpolation_buffer[player_id][k].timestamp<<" ";
-    // }
-    // cout<<endl;
-    if(i->timestamp==j->timestamp){
-        x=i->pos.x;
-        y=i->pos.y;
-        player->setCoords(x,y);
-        return;
+    // Check collisions with tiles
+    for (Tile& tile : tiles) {
+        if (colliding(tile.surface, player->sprite, tile.coords, player->coords)) {
+            // Handle collision resolution
+            player->setCoords(oldPos.x, oldPos.y);
+            predictedState.vel = {0, 0};
+            break;
+        }
     }
-    //interpolation logic
-    if(i<interpolation_buffer[player_id].end() && j<interpolation_buffer[player_id].end()){
-        x=i->pos.x+(((j->pos.x-i->pos.x)/(j->timestamp-i->timestamp))*(rqd_time-i->timestamp));
-        y=i->pos.y+(((j->pos.y-i->pos.y)/(j->timestamp-i->timestamp))*(rqd_time-i->timestamp));
-        player->setCoords(x,y);
-        // cout<<"other:"<<x<<" "<<y<<endl;
+
+    // Check collisions with other players
+    for (Player* other_player : other_players) {
+        if (other_player->get_id() != player->get_id()) {
+            if (colliding(other_player->sprite, player->sprite, other_player->coords, player->coords)) {
+                // Handle collision resolution
+                player->setCoords(oldPos.x, oldPos.y);
+                predictedState.vel = {0, 0};
+                break;
+            }
+        }
     }
+
+    // Update player velocity
+    player->vel = predictedState.vel;
 }
+
 void Level::render() {
     display_surface->clear();
     
