@@ -21,6 +21,7 @@ class Player{
         std::vector<Shell* > shells;
         std::vector<PowerUp* > powerups;
         bool boostActive=false;
+        bool onPlatform=false;
         long long boostStart;
         
     public:

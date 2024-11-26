@@ -7,9 +7,9 @@ class Tile{
         sf::Vector2f acc;
     public:
         sf::Sprite surface;
-        Tile(sf::Sprite sprite);
-
+        Tile(sf::Sprite sprite, char type);
         void update(float x_shit, float y_shift);
+        char type='T';
     friend class Level;
 };
 class Collectibles{
@@ -48,12 +48,16 @@ class PowerUp:public Collectibles{
 };
 class MovingPlatform:Tile{
     private:
-    float minHeight=100;
-    float maxHeight=400;
-    bool movingUp=false;
+    float mindisp=100;
+    float maxdisp=400;
+    bool movingLeft=false;
+    static bool mvLeft;
+    static float velocity;
+    sf::Vector2f initialCoords;
     sf::Clock movementClock;
     public:
     MovingPlatform(sf::Sprite sprite);
     void movePlatform();
+    static void updateAllPlatforms(std::vector<MovingPlatform*>& movingPlatforms);
     friend class Level;
 };

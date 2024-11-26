@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Tile::Tile(sf::Sprite sprite){
+Tile::Tile(sf::Sprite sprite, char type){
     // this->pos=pos;
     this->coords=sprite.getPosition();
     this->vel=sf::Vector2f(0,0);
@@ -11,6 +11,7 @@ Tile::Tile(sf::Sprite sprite){
     // this->surface.setFillColor(sf::Color(120, 83, 38));
     // this->surface.setPosition(pos);
     // this->surface.setTextureRect(sf::IntRect(texturePos.x, texturePos.y, 16, 16));
+    this->type = type;
     this->surface = sprite;
 }
 
@@ -68,25 +69,43 @@ Collectibles::Collectibles(sf::Vector2f coords, sf::Sprite newSprite){
     };
 
     char Shell::getType(){return 'S';}
-MovingPlatform::MovingPlatform(sf::Sprite sprite):Tile(sprite){
+MovingPlatform::MovingPlatform(sf::Sprite sprite):Tile(sprite, 'M'){
+    this->vel.x = 1;
+    this->initialCoords = coords;
     movementClock.restart();
 }
- void MovingPlatform::movePlatform(){
-    float timePassed = movementClock.getElapsedTime().asSeconds();
-    float disp=vel.y*timePassed;
-    if(movingUp){
-        if(disp<minHeight){
-            pos.y=minHeight;
-            movingUp=false;
+float MovingPlatform::velocity = 1;
+bool MovingPlatform::mvLeft = true; // Static member definition
+void MovingPlatform::movePlatform(){
+    if(movingLeft){
+        if(coords.x<=initialCoords.x-100){
+            coords.x=initialCoords.x-100;
+            movingLeft=false;
             movementClock.restart();
+            return;
+        }
+            coords.x-=vel.x;
+            mvLeft=true;
+    }   
+        else{
+            if(coords.x>=initialCoords.x+100){
+                coords.x=initialCoords.x+100;
+                movingLeft=true;
+                movementClock.restart();
+                return;
+            }
+                coords.x+=vel.x;
+                mvLeft=false;
+        }
+
+        
+    surface.setPosition(coords);
+}
+void MovingPlatform::updateAllPlatforms(std::vector<MovingPlatform*>& movingPlatforms) {
+    for (auto* platform : movingPlatforms) {
+        if (platform) {
+            platform->movePlatform();
         }
     }
-        else{
-            if(pos.y>maxHeight){
-                pos.y=maxHeight;
-                movingUp=true;
-                movementClock.restart();
-            }
-        }
-    surface.setPosition(pos);
 }
+

@@ -71,13 +71,12 @@ void Level::setup_level(string terrainPath, string collectiblePath, string movin
             int tv = tileNumber / (tileSheet.getSize().x / tileSize.x);
             s.setTextureRect(sf::IntRect(tu * tileSize.x, tv * tileSize.y, 16, 16));
             s.setPosition(sf::Vector2f(j * tileSize.x, i * tileSize.y));      
-            Tile newTile(s);      
+            Tile newTile(s, 'T');      
             tiles.push_back(newTile);
         }
     }
 
     //Adding Collectables
-    int collectiblesPos[MAX_ROWS][MAX_COLS];
     ifstream collectiblePathFile(collectiblePath);
     if(!collectiblePathFile.is_open()){
         cerr << "Error opening file!\n";
@@ -113,7 +112,6 @@ void Level::setup_level(string terrainPath, string collectiblePath, string movin
 
     //Adding Moving Platform
 
-    int movingPlatformPos[MAX_ROWS][MAX_COLS];
     ifstream movingPlatformPathFile(movingPlatformPath);
     if(!movingPlatformPathFile.is_open()){
         cerr << "Error opening file here!\n";
@@ -193,14 +191,25 @@ void Level::x_collisions() {
             self.vel.x = -self.maxspeed;
         }
     }
-
+    if(self.onPlatform){
+        cout<<self.coords.x<<endl;
+        if(MovingPlatform::mvLeft) {
+           // cout<<"enteredL"<<endl;
+            self.coords.x-=1;
+        }
+        else {
+           // cout<<"enteredR"<<endl;
+            self.coords.x+=1;
+        }
+    }
+    
     self.coords.x += self.vel.x;
     self.pos.x = self.coords.x;  // Update screen position based on world coordinates
 
     for(Tile t : tiles) {
         if(colliding(t.surface, self.sprite, t.coords, self.coords)) {
             float relVel = self.vel.x;
-            
+            //cout<<"col"<<endl;
             if(relVel < 0) {
                 self.coords.x = t.coords.x + tileSize.x;
                 self.pos.x = self.coords.x;
@@ -239,16 +248,16 @@ void Level::x_collisions() {
         
     }
 
-    for(auto c=collictibles.begin();c!=collictibles.end();){
-            if(colliding((*c)->surface, self.sprite, (*c)->coords, self.coords)){
-                if((*c)->getType()=='S')
-                    self.addShell(dynamic_cast<Shell*>(*c));
-                else if((*c)->getType()=='P') 
-                    self.addPowerUps(dynamic_cast<PowerUp*>(*c));
-                c=collictibles.erase(c);
+    for(auto collect=collictibles.begin();collect!=collictibles.end();){
+            if(colliding((*collect)->surface, self.sprite, (*collect)->coords, self.coords)){
+                if((*collect)->getType()=='S')
+                    self.addShell(dynamic_cast<Shell*>(*collect));
+                else if((*collect)->getType()=='P') 
+                    self.addPowerUps(dynamic_cast<PowerUp*>(*collect));
+                collect=collictibles.erase(collect);
             }
             else{
-                c++;
+                collect++;
             }
         }
 
@@ -260,7 +269,7 @@ void Level::y_collisions() {
     self.vel.y += self.acc.y;
     self.coords.y += self.vel.y;
     self.pos.y = self.coords.y;  // Update screen position based on world coordinates
-
+    int flag=0;
     for(Tile t : tiles) {
         if(colliding(t.surface, self.sprite, t.coords, self.coords)) {
             float relVel = self.vel.y;
@@ -275,10 +284,34 @@ void Level::y_collisions() {
                 self.pos.y = self.coords.y;
                 self.vel.y = 0;
                 self.on_ground = true;
+                //cout<<t.type<<endl;
             }
         }
     }
-
+    for(MovingPlatform* mp:movingPlatforms){
+        float relVel = self.vel.y;
+        if(colliding(mp->surface, self.sprite, mp->coords, self.coords)){
+            if(relVel < 0) {
+                self.coords.y = mp->coords.y + 19.2;
+                self.pos.y = self.coords.y;
+                self.vel.y = 0;
+            }
+            else if(relVel > 0) {
+                self.coords.y = mp->coords.y - self.getDim().y;
+                self.pos.y = self.coords.y;
+                self.vel.y = 0;
+                self.on_ground = true;
+                //cout<<t.type<<endl;
+                flag=1;
+                self.onPlatform=true;
+        }
+    }
+    }
+    // cout<<"flag :"<<flag<<endl;
+    // if(self.onPlatform) cout<<"yo"<<endl;
+    if(self.onPlatform && flag==0){
+        self.onPlatform=false;
+    }
     for(int i=0;i<other_players.size();i++){
         // if(self_id-1==i){
         //     continue;
@@ -303,18 +336,21 @@ void Level::y_collisions() {
         
     }
 
-    for(auto c=collictibles.begin();c!=collictibles.end();){
-            if(colliding((*c)->surface, self.sprite, (*c)->coords, self.coords)){
-                if((*c)->getType()=='S')
-                    self.addShell(dynamic_cast<Shell*>(*c));
-                else if((*c)->getType()=='P') 
-                    self.addPowerUps(dynamic_cast<PowerUp*>(*c));
-                c=collictibles.erase(c);
+    for(auto collect=collictibles.begin();collect!=collictibles.end();){
+            if(colliding((*collect)->surface, self.sprite, (*collect)->coords, self.coords)){
+                if((*collect)->getType()=='S')
+                    self.addShell(dynamic_cast<Shell*>(*collect));
+                else if((*collect)->getType()=='P') 
+                    self.addPowerUps(dynamic_cast<PowerUp*>(*collect));
+                collect=collictibles.erase(collect);
             }
             else{
-                c++;
+                collect++;
             }
         }
+//     for(auto mv_platform=movingPlatforms.begin();mv_platform!=movingPlatforms.end();mv_platform++){
+
+//     }
 }
 
 void Level::set_id(int id){self_id=id;}
@@ -566,7 +602,7 @@ void Level::InterpolateEntity(Player *player){
     //     cout<<interpolation_buffer[player_id][k].pos.y<<":"<<interpolation_buffer[player_id][k].timestamp<<" ";
     // }
     // cout<<endl;
-    if((i+1)<interpolation_buffer[player_id].end() && i->timestamp==rqd_time){
+    if(i->timestamp==j->timestamp){
         x=i->pos.x;
         y=i->pos.y;
         player->setCoords(x,y);
@@ -606,7 +642,7 @@ void Level::render() {
 
 void Level::run(){
     // updatePlayer();
-    // processPendingUpdates();
+    processPendingUpdates();
    // cout << tiles.size() << endl;
     updatePlayer();
     for(auto player : other_players){
@@ -614,7 +650,12 @@ void Level::run(){
         // player->moveCam(x_shift, y_shift);
     }
     // cout << self.powerups.size() << endl;
+    MovingPlatform::updateAllPlatforms(movingPlatforms);
     render();
+     //MovingPlatform::updateAllPlatforms(movingPlatforms);
+
+    
+    
 }
 
 

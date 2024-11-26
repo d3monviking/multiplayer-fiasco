@@ -32,6 +32,8 @@ class Level{
         const int MAX_ROWS = 400;
         const int MAX_COLS = 1200;
         int level[400][1200];
+        int collectiblesPos[400][1200];
+        int movingPlatformPos[400][1200];
         sf::Texture tileSheet; 
         sf::Texture movingPlatImage;
         string tileSetPath = "../Sprites/terrain_tiles.png";
