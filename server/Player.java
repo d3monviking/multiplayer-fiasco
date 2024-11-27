@@ -1,5 +1,6 @@
 import java.net.InetSocketAddress;
 import java.time.Instant;
+import java.util.ArrayList;
 // Vec2 class to represent 2D coordinates (x, y)
 class Vec2 {
     public float x;
@@ -41,6 +42,14 @@ public class Player {
     public float runAcc;
     public float maxSpeed;
     public boolean[] inputs = new boolean[5];
+
+    public ArrayList<PowerUp> powerUps = new ArrayList<PowerUp>();
+    public ArrayList<Shell> shells = new ArrayList<Shell>();
+
+    public boolean isBoostActive = false;
+    public long boostStart;
+    public boolean onPlatform = false;
+
     
 
     public Player(InetSocketAddress address, Vec2 coordinates, int playerId, int lastProcessedSeqNum, long timestamp) {
@@ -51,11 +60,20 @@ public class Player {
         this.timestamp = Instant.ofEpochMilli(timestamp); // Store the timestamp
         this.vel = new Vec2(0, 0);
         this.acc = new Vec2(0, 0);
-        this.size = new Vec2(50, 50);
+        // this.size = new Vec2(50, 50);
+        if(this.playerId == 1){
+            this.size = new Vec2(55, 81);
+        } else if(this.playerId == 2){
+            this.size = new Vec2(69, 80);
+        } else if(this.playerId == 3){
+            this.size = new Vec2(56, 94);
+        } else if(this.playerId == 4){
+            this.size = new Vec2(57, 80);
+        }
         this.onGround = true;
         this.prevXVel = 0;
-        this.runAcc = 2f;
-        this.maxSpeed = 8f;
+        this.runAcc = 4f;
+        this.maxSpeed = 12f;
     }
 
     private synchronized void threadWriteNotify(){
@@ -142,6 +160,16 @@ public class Player {
 
     public synchronized void setTimestamp(long timestamp) {
         this.timestamp = Instant.ofEpochMilli(timestamp);
+    }
+
+    public synchronized void applyPowerUp(long time){
+        if(powerUps.size() != 0){
+            float originalSpeed = this.vel.x;
+            powerUps.get(0).applyBoost(this);
+            isBoostActive = true;
+            boostStart = time;
+            powerUps.remove(0);
+        } 
     }
 
     @Override

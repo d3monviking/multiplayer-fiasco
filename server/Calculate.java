@@ -20,6 +20,10 @@ public class Calculate implements Runnable {
         try {
             level = new Level();
             while (true) {
+
+                MovingPlatform.updatePlatforms(level.movingPlatformTiles);
+
+
                 // Get the next client message from the queue
                 ClientMessage clientMessage = messageQueue.take();
 
@@ -29,7 +33,7 @@ public class Calculate implements Runnable {
                     // Get inputs to determine movement direction
                     boolean[] inputs = getInputsFromClientMessage(clientMessage);
                     // System.out.println("Processing Player ID: " + player.getPlayerId());
-                    System.out.println("Player inputs: " + inputs[0] + ", " + inputs[1] + ", " + inputs[2] + ", " + inputs[3]);
+                    // System.out.println("Player inputs: " + inputs[0] + ", " + inputs[1] + ", " + inputs[2] + ", " + inputs[3]);
 
                     float currX = player.getCoordinates().getX();
                     float currY = player.getCoordinates().getY();
@@ -41,7 +45,7 @@ public class Calculate implements Runnable {
                     // Get the player's new position after input
                     float newX = player.getCoordinates().getX();
                     float newY = player.getCoordinates().getY();
-                    System.out.println("Player after input applied position: x=" + newX + ", y=" + newY);
+                    // System.out.println("Player after input applied position: x=" + newX + ", y=" + newY);
 
                     // Check for collision with other players
                     for (Player otherPlayer : Server.getPlayerList()) {
@@ -152,7 +156,7 @@ public class Calculate implements Runnable {
     // }
     private float[] adjustToCollision(float x1, float y1, float width1, float height1,
                                   float x2, float y2, float width2, float height2, Player player) {
-    System.out.println("Entered adjust collision");
+    // System.out.println("Entered adjust collision");
 
     // Compute the centers of the bounding boxes
     float centerX1 = x1 + width1 / 2.0f;
