@@ -5,7 +5,7 @@ using namespace std;
 using boost::asio::ip::udp;
 boost::asio::io_context io_context;
 udp::socket clientSocket(io_context);
-udp::endpoint serverEndpoint(boost::asio::ip::make_address("172.16.228.140"), 8888);
+udp::endpoint serverEndpoint(boost::asio::ip::make_address("127.0.0.1"), 8888);
 
 int screen_width=1920;
 int screen_height=1080;
@@ -220,7 +220,7 @@ int main(){
         }
 
         if(gameStart==0){
-           window.clear();
+           window.clear(sf::Color::Cyan);
            window.draw(self.sprite);
            for(auto others: other_players){
                 window.draw(others->sprite);

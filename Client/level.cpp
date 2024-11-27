@@ -869,21 +869,21 @@ void Level::InterpolateEntity(Player* player) {
 }
 
 void Level::render() {
-    display_surface->clear();
+    display_surface->clear(sf::Color::Cyan);
     
     // Set the view
     display_surface->setView(gameView);
     
     // Draw all game objects
-    sf::Texture bgTexture;
-    if (!bgTexture.loadFromFile("../Sprites/bg.jpg")) {
-        std::cerr << "Error loading background image!" << std::endl;
-    }    
-    sf::Sprite backgroundSprite;
-    backgroundSprite.setTexture(bgTexture);
-    backgroundSprite.setScale(4.5f, 7.f);
-    display_surface->draw(backgroundSprite);
-    display_surface->draw(self.sprite);
+    // sf::Texture bgTexture;
+    // if (!bgTexture.loadFromFile("../Sprites/bg1.png")) {
+    //     std::cerr << "Error loading background image!" << std::endl;
+    // }    
+    // sf::Sprite backgroundSprite;
+    // backgroundSprite.setTexture(bgTexture);
+    // backgroundSprite.setScale(4.5f, 7.f);
+    // display_surface->draw(backgroundSprite);
+    // display_surface->draw(self.sprite);
     for(auto others : other_players) {
         display_surface->draw(others->sprite);
     }
