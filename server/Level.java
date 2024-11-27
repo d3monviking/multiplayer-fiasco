@@ -29,15 +29,15 @@ public class Level {
     private static ArrayList<ArrayList<Integer>> spikes = new ArrayList<>();
     private static ArrayList<ArrayList<Integer>> finishLine = new ArrayList<>();
     public int winnerId = -1;
-
+    private static String src = "/home/sarthak/Programming/Programming 2/multiplayer-fiasco/server";
     static {
-        loadLevelMapFromFile("level_terrain.csv");
-        loadPowerUpsFromFile("level_powerups.csv");
-        loadMovingPlatformFromFile("level_moving_platform.csv");
-        loadWaterTiles("level_water.csv");
-        loadTrees("level_tree.csv");
-        loadSpikes("level_spikes.csv");
-        loadFinishLine("level_finishLine.csv");
+        loadLevelMapFromFile(src + "/level_terrain.csv");
+        loadPowerUpsFromFile(src + "/level_powerups.csv");
+        loadMovingPlatformFromFile(src + "/level_moving_platform.csv");
+        loadWaterTiles(src + "/level_water.csv");
+        loadTrees(src + "/level_tree.csv");
+        loadSpikes(src + "/level_spikes.csv");
+        loadFinishLine(src + "/level_finishLine.csv");
     }
 
     // private static void loadLevelMapFromFile(String fileName) {
@@ -302,6 +302,10 @@ public class Level {
         
         xCollisions(self);
         yCollisions(self);
+        if(self.getCoordinates().x > 6400){
+            self.getCoordinates().y = 5710+(177*4);
+            self.getCoordinates().x = 20;
+        }
         // detectInterPlayerCollisions();
 
         Instant currInstant = Instant.now();
