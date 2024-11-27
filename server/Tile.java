@@ -1,8 +1,9 @@
 class Tile {
-    private Vec2 coordinates;  // Coordinates in tile grid
-    private Vec2 vel;     // Velocity
+    public Vec2 coordinates;  // Coordinates in tile grid
     private Vec2 acc;     // Acceleration
     private Vec2 size;    // Tile dimensions (width/height)
+
+    public Vec2 vel;     // Velocity
     
     public Tile(Vec2 coords, Vec2 tileSize) {
         this.size = tileSize;

@@ -48,9 +48,38 @@ public class SendServerMessage implements Runnable {
             data = makeGameMessage(fbb, serverMessage);
             message = new DatagramPacket(data, data.length);
         }
-        message.setPort(8887);
         message.setAddress(InetAddress.getByName("255.255.255.255"));
+        message.setPort(8887);
         return message;
+    }
+
+    public static void serverCollectible(int messageCode, List<Tile> collectibles) throws UnknownHostException {
+        FlatBufferBuilder fbb = new FlatBufferBuilder(0);
+        byte[] data;
+        DatagramPacket message = null;
+        int collectibleDataList[] = new int[collectibles.size()];
+        for(int i = 0; i < collectibles.size(); i++) {
+            Tile collectible = collectibles.get(i);
+            PlayerData.startPlayerData(fbb);
+            PlayerData.addPos(fbb, Vec2.createVec2(fbb, collectible.getCoordinates().getX(), collectible.getCoordinates().getY()));
+            collectibleDataList[i] = PlayerData.endPlayerData(fbb);
+        }
+        int collectibleDataVector = ServerMessage.createPlayerDataVector(fbb, collectibleDataList);
+        if(messageCode == 3){
+            ServerMessage.startServerMessage(fbb);
+            ServerMessage.addMessageCode(fbb, messageCode);
+            ServerMessage.addPlayerData(fbb, collectibleDataVector);
+            int serverMessage = ServerMessage.endServerMessage(fbb);
+            data = makeGameMessage(fbb, serverMessage);
+            message = new DatagramPacket(data, data.length);
+            message.setAddress(InetAddress.getByName("255.255.255.255"));
+            message.setPort(8887);
+            try {
+                Server.udpSocket.send(message);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private static byte[] makeGameMessage(FlatBufferBuilder fbb, int serverMessage) {
@@ -66,7 +95,6 @@ public class SendServerMessage implements Runnable {
 
     public SendServerMessage(int serverRefreshRate) {
         this.serverRefreshRate = serverRefreshRate;
-
     }
 
     public void run() {
