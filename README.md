@@ -55,7 +55,7 @@ cd multiplayer-fiasco/Client
 ```
 udp::endpoint serverEndpoint(boost::asio::ip::make_address("your-server-ip"), 8888);
 ```
-3. To find your server's IP, run the following command on the server system, and opy the IP next to inet and replace "your-server-ip" with the IP address in quotes.
+3. To find your server's IP, run the following command on the server system, and copy the IP next to inet and replace "your-server-ip" with the IP address in quotes.
 ```bash
 ifconfig
 ``` 
