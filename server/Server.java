@@ -68,7 +68,7 @@ public class Server {
                 return;  // Player already exists
             }
         }
-        Player newPlayer = new Player(clientSocketAddress, new Vec2(20, 5710+(177*playerCount)), ++playerCount, lastProcessedSeqNum, System.currentTimeMillis());
+        Player newPlayer = new Player(clientSocketAddress, new Vec2(1190*16, 391*16), ++playerCount, lastProcessedSeqNum, System.currentTimeMillis());
         playerList.add(newPlayer);
         DatagramPacket playerIDPacket = SendServerMessage.makeServerMessage(0, newPlayer.getPlayerId());
         try {
@@ -84,5 +84,3 @@ public class Server {
         System.out.println("New player added: " + newPlayer);
     }
 }
-
-//dummy comment here

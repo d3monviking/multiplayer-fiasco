@@ -113,6 +113,8 @@ void receiveFromSender(){
                     struct InterpolationData data;
                     data.pos.x = player_state->pos()->x();
                     data.pos.y = player_state->pos()->y();
+                    data.vel.x = player_state->vel()->x();
+                    data.vel.y = player_state->vel()->y();
                     // Get the current time from the system clock
                     auto now = chrono::system_clock::now();
 

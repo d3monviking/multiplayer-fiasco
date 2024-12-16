@@ -28,8 +28,9 @@ public class Level {
     private static ArrayList<ArrayList<Integer>> trees = new ArrayList<>();
     private static ArrayList<ArrayList<Integer>> spikes = new ArrayList<>();
     private static ArrayList<ArrayList<Integer>> finishLine = new ArrayList<>();
-    public int winnerId = -1;
-    private static String src = "/home/sarthak/Programming/Programming 2/multiplayer-fiasco/server";
+    public ArrayList<Integer> winners = new ArrayList<>();
+    public ArrayList<Vec2> winnerPos = new ArrayList<>();
+    private static String src = "/home/sarthak/Programming/Programming 2/multiplayer-fiasco/Client/TileMapFiles";
     static {
         loadLevelMapFromFile(src + "/level_terrain.csv");
         loadPowerUpsFromFile(src + "/level_powerups.csv");
@@ -203,6 +204,12 @@ public class Level {
     Level(){
         tileSize = new Vec2(16, 16);
         movingPlatformSize = new Vec2(48, 16);
+        int q = 2;
+        for(int i = 0; i<4; i++){
+            winnerPos.add(new Vec2(36, q*16));
+            System.out.println("lol : " + winnerPos.get(i).getX() + " " + winnerPos.get(i).getY());
+            q += 11;
+        }
         gravity = 1.4f;
         tiles = new ArrayList<Tile>();
         powerUpTiles = new ArrayList<PowerUp>();
@@ -302,10 +309,11 @@ public class Level {
         
         xCollisions(self);
         yCollisions(self);
-        if(self.getCoordinates().x > 6400){
-            self.getCoordinates().y = 5710+(177*4);
-            self.getCoordinates().x = 20;
-        }
+        System.out.println(self.getCoordinates().getX() + " " + self.getCoordinates().getY());
+//        if(self.getCoordinates().y > 6400){
+//            self.getCoordinates().y = 5710+(177*4);
+//            self.getCoordinates().x = 20;
+//        }
         // detectInterPlayerCollisions();
 
         Instant currInstant = Instant.now();
@@ -344,7 +352,6 @@ public class Level {
         for (Iterator<Tile> it = tiles.iterator(); it.hasNext();) {
             Tile t = it.next();
             if (checkCollision(t, self)) {
-
                 float relVel = self.vel.x - t.getVel().x;
                 if (relVel < 0) {
                     self.getCoordinates().x = t.getCoordinates().x + tileSize.x;
@@ -374,9 +381,8 @@ public class Level {
                 self.vel.y = 0;
                 // self.getCoordinates().x = 20;
                 // self.getCoordinates().y = 5710+(177*self.getPlayerId());
-                if(winnerId == -1){
-                    winnerId = self.getPlayerId();
-                }
+                winners.add(self.getPlayerId());
+                self.setCoordinates(winnerPos.get(winners.size()-1));
                 break;
             }
         }
@@ -388,7 +394,7 @@ public class Level {
         self.vel.y += self.acc.y;
         self.getCoordinates().y += self.vel.y;
         
-        // Check collisions
+//         Check collisions
         for (Iterator<Tile> it = tiles.iterator(); it.hasNext();) {
             Tile t = it.next();
             if (checkCollision(t, self)) {
@@ -438,26 +444,14 @@ public class Level {
                 }
             }
         }
-        for(Tile d : deathTiles){
-            if(checkCollision(d, self)){
-                self.vel.x = 0;
-                self.vel.y = 0;
-                self.getCoordinates().x = 20;
-                self.getCoordinates().y = 5710+(177*self.getPlayerId());
-            }
-        }
-        for(Tile f : finishLineTiles){
-            if(checkCollision(f, self)){
-                self.vel.x = 0;
-                self.vel.y = 0;
-                // self.getCoordinates().x = 20;
-                // self.getCoordinates().y = 5710+(177*self.getPlayerId());
-                if(winnerId == -1){
-                    winnerId = self.getPlayerId();
-                }
-                break;
-            }
-        }
+//        for(Tile d : deathTiles){
+//            if(checkCollision(d, self)){
+//                self.vel.x = 0;
+//                self.vel.y = 0;
+//                self.getCoordinates().x = 20;
+//                self.getCoordinates().y = 5710+(177*self.getPlayerId());
+//            }
+//        }
     }
 
     private boolean checkCollision(Tile t, Player p) {

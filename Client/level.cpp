@@ -606,6 +606,7 @@ void Level::applyLocalInput(vector<bool> &this_move, int camFlag) {
 
     x_collisions();
     y_collisions();
+    cout << self.coords.x << " " << self.coords.y << endl;
     
     self.sprite.setPosition(self.coords);
     
@@ -754,7 +755,7 @@ void Level::updatePlayer(){
 
 void Level::InterpolateEntity(Player* player) {
     long long current_time = setCurrentTimestamp(); // Time in milliseconds
-    const long long INTERPOLATION_DELAY = 100; // Delay in milliseconds
+    const long long INTERPOLATION_DELAY = 50; // Delay in milliseconds
     long long target_time = current_time - INTERPOLATION_DELAY;
 
     int player_id = player->get_id() - 1;
@@ -768,10 +769,8 @@ void Level::InterpolateEntity(Player* player) {
 
     // Remove old data from the buffer
     const long long MAX_BUFFER_AGE = 2000; // Maximum age in milliseconds
-    buffer.erase(
-        buffer.begin(),
-        std::lower_bound(buffer.begin(), buffer.end(), current_time - MAX_BUFFER_AGE,
-            [](const InterpolationData& entry, long long time) { 
+    buffer.erase( 
+        buffer.begin(),std::lower_bound(buffer.begin(), buffer.end(), current_time - MAX_BUFFER_AGE,[](const InterpolationData& entry, long long time) { 
                 return entry.timestamp < time; 
             })
     );
@@ -883,8 +882,9 @@ void Level::render() {
     // backgroundSprite.setTexture(bgTexture);
     // backgroundSprite.setScale(4.5f, 7.f);
     // display_surface->draw(backgroundSprite);
-    // display_surface->draw(self.sprite);
+    display_surface->draw(self.sprite);
     for(auto others : other_players) {
+        cout << " x: " << others->coords.x << " y: " << others->coords.y << endl;
         display_surface->draw(others->sprite);
     }
 
@@ -906,7 +906,7 @@ void Level::render() {
 
 void Level::run(){
     // updatePlayer();
-    // processPendingUpdates();
+    processPendingUpdates();
    // cout << tiles.size() << endl;
     updatePlayer();
     for(auto player : other_players){
@@ -917,8 +917,6 @@ void Level::run(){
     MovingPlatform::updateAllPlatforms(movingPlatforms);
     render();
      //MovingPlatform::updateAllPlatforms(movingPlatforms);
-
-    
     
 }
 
