@@ -207,7 +207,6 @@ public class Level {
         int q = 2;
         for(int i = 0; i<4; i++){
             winnerPos.add(new Vec2(36, q*16));
-            System.out.println("lol : " + winnerPos.get(i).getX() + " " + winnerPos.get(i).getY());
             q += 11;
         }
         gravity = 1.4f;
@@ -444,14 +443,14 @@ public class Level {
                 }
             }
         }
-//        for(Tile d : deathTiles){
-//            if(checkCollision(d, self)){
-//                self.vel.x = 0;
-//                self.vel.y = 0;
-//                self.getCoordinates().x = 20;
-//                self.getCoordinates().y = 5710+(177*self.getPlayerId());
-//            }
-//        }
+        for(Tile d : deathTiles){
+            if(checkCollision(d, self)){
+                self.vel.x = 0;
+                self.vel.y = 0;
+                self.getCoordinates().x = 20;
+                self.getCoordinates().y = 5710+(177*self.getPlayerId());
+            }
+        }
     }
 
     private boolean checkCollision(Tile t, Player p) {
