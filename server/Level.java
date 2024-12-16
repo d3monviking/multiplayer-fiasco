@@ -30,7 +30,7 @@ public class Level {
     private static ArrayList<ArrayList<Integer>> finishLine = new ArrayList<>();
     public ArrayList<Integer> winners = new ArrayList<>();
     public ArrayList<Vec2> winnerPos = new ArrayList<>();
-    private static String src = "/home/sarthak/Programming/Programming 2/multiplayer-fiasco/Client/TileMapFiles";
+    private static String src = "../Client/TileMapFiles";
     static {
         loadLevelMapFromFile(src + "/level_terrain.csv");
         loadPowerUpsFromFile(src + "/level_powerups.csv");
